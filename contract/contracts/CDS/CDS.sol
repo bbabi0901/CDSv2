@@ -6,7 +6,7 @@ import '../libs/LibSwap.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 // PriceConsumberGoerli({assetType})
-contract CDS is Ownable, PriceConsumer(0xF2A3Fa0266A0fEFFA87DA45F0D3C45aC66FE05c5) {
+contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a0945222) {
   using LibSwap for uint256;
 
   PriceOracleMock private priceOracle;
@@ -25,7 +25,7 @@ contract CDS is Ownable, PriceConsumer(0xF2A3Fa0266A0fEFFA87DA45F0D3C45aC66FE05c
   uint256 public liquidationPrice;
   uint256 public premium;
   uint256 public sellerDeposit;
-  uint256 public amountOfAsset;
+  uint256 public nextPayDate;
   address private buyer;
   address private seller;
   uint32 public rounds;
@@ -48,10 +48,7 @@ contract CDS is Ownable, PriceConsumer(0xF2A3Fa0266A0fEFFA87DA45F0D3C45aC66FE05c
     sellerDeposit = _sellerDeposit;
     rounds = _rounds;
     totalRounds = _rounds;
-    amountOfAsset = initAssetPrice.calcAmountOfAsset(
-      liquidationPrice,
-      sellerDeposit
-    );
+
     require(
       _assetType == 0 || _assetType == 1 || _assetType == 2,
       'BTC:0, ETH:1, LINK:2'
@@ -71,6 +68,13 @@ contract CDS is Ownable, PriceConsumer(0xF2A3Fa0266A0fEFFA87DA45F0D3C45aC66FE05c
       premium,
       sellerDeposit
     ];
+  }
+
+  function getAmountOfAsset() public view returns (uint256) {
+    return initAssetPrice.calcAmountOfAsset(
+      liquidationPrice,
+      sellerDeposit
+    );
   }
 
   function getBuyer() public view returns (address) {
@@ -121,5 +125,60 @@ contract CDS is Ownable, PriceConsumer(0xF2A3Fa0266A0fEFFA87DA45F0D3C45aC66FE05c
   function setRounds(uint32 _rounds) public onlyOwner returns (uint32) {
     rounds = _rounds;
     return rounds;
+  }
+
+  function setNextPayDate() public onlyOwner returns (uint256) {
+    nextPayDate += 4 weeks;
+    return nextPayDate;
+  }
+
+  function premiumPaid() external onlyOwner isActive {
+    require(rounds > 0, 'Round already ended');
+    nextPayDate += 4 weeks;
+    setRounds(rounds - 1);
+  }
+
+  function accept(uint256 _initAssetPrice, bool _isBuyerHost) external onlyOwner isPending {
+    setInitAssetPrice(_initAssetPrice);
+    nextPayDate = block.timestamp + 4 weeks;
+    setParticipants(msg.sender, !_isBuyerHost);
+    setStatus(CDS.Status.active);
+  }
+
+  function cancel() external isPending {
+    setStatus(CDS.Status.inactive);
+  }
+
+  function close() external isActive {
+    setStatus(CDS.Status.expired);
+  }
+
+  function claim() external isActive {
+    setStatus(CDS.Status.claimed);
+  }
+
+  function checkRoundsZero() external view isActive returns (bool) {
+    return (rounds == 0);
+  }
+
+  function checkPayDatePassed() external view isActive returns (bool) {
+    return (block.timestamp >= nextPayDate);
+  }
+
+  // modifiers
+  modifier isPending() {
+    require(
+      status == Status.pending,
+      'The status of the CDS should be pending'
+    );
+    _;
+  }
+
+  modifier isActive() {
+    require(
+      status == Status.active,
+      'The status of the CDS should be active'
+    );
+    _;
   }
 }

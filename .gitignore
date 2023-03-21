@@ -123,6 +123,7 @@ web_modules/
 # misc
 CDS_CA.txt
 .DS_Store
+address.json
 
 blockListener/src/contractArtifacts/
 blockListener/.vscode

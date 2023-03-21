@@ -9,9 +9,8 @@ contract CDSFactory {
   Counters.Counter internal _cdsId;
 
   mapping(uint256 => CDS) private _cdsList;
-  // mapping(address => address[]) public _ownedCDS;
+  mapping(address => address[]) public ownedCDS;
   // delete mapping[key]
-  mapping(uint256 => uint256) public nextPayDate;
 
   function _create(
     bool _isBuyer,
@@ -44,41 +43,38 @@ contract CDSFactory {
     bool _isBuyerHost,
     uint256 _initAssetPrice,
     uint256 _targetCDSId
-  ) internal isPending(_targetCDSId) returns (uint256) {
+  ) internal returns (uint256) {
     CDS targetCDS = _cdsList[_targetCDSId];
-    targetCDS.setInitAssetPrice(_initAssetPrice);
-
-
-    nextPayDate[_targetCDSId] = block.timestamp + 4 weeks;
-    targetCDS.setParticipants(msg.sender, !_isBuyerHost);
-    targetCDS.setStatus(CDS.Status.active);
-
-    // _ownedCDS[targetCDS.getBuyer()].push(address(targetCDS));
-    // _ownedCDS[targetCDS.getSeller()].push(address(targetCDS));
+    
+    targetCDS.accept(_initAssetPrice, _isBuyerHost);
+    
+    ownedCDS[targetCDS.getBuyer()].push(address(targetCDS));
+    ownedCDS[targetCDS.getSeller()].push(address(targetCDS));
 
     return _targetCDSId;
   }
 
-  function _cancel(uint256 _targetCDSId) internal isPending(_targetCDSId) {
-    getCDS(_targetCDSId).setStatus(CDS.Status.inactive);
+  // function delOwnedCDS(address owner, uint256 cdsId) private returns (bool) {
+  //   return true;
+  // }
+
+  function _cancel(uint256 _targetCDSId) internal {
+    getCDS(_targetCDSId).cancel();
   }
 
-  function _close(uint256 _targetCDSId) internal isActive(_targetCDSId) {
-    getCDS(_targetCDSId).setStatus(CDS.Status.expired);
+  function _close(uint256 _targetCDSId) internal {
+    getCDS(_targetCDSId).close();
   }
 
-  function _payPremium(uint256 _targetCDSId) internal isActive(_targetCDSId) {
-    uint32 currRounds = _cdsList[_targetCDSId].rounds();
-    require(currRounds > 0, 'Round already ended');
-    nextPayDate[_targetCDSId] += 4 weeks;
-    getCDS(_targetCDSId).setRounds(currRounds - 1);
+  function _payPremium(uint256 _targetCDSId) internal {
+    getCDS(_targetCDSId).premiumPaid();
   }
 
-  function _claim(uint256 _targetCDSId) internal isActive(_targetCDSId) {
-    getCDS(_targetCDSId).setStatus(CDS.Status.claimed);
+  function _claim(uint256 _targetCDSId) internal {
+    getCDS(_targetCDSId).claim();
   }
 
-  // getter transactions
+  // getter 
   function getCDSId() public view returns (Counters.Counter memory) {
     return _cdsId;
   }
@@ -96,19 +92,19 @@ contract CDSFactory {
   }
 
   // modifiers
-  modifier isPending(uint256 cdsId) {
-    require(
-      _cdsList[cdsId].status() == CDS.Status.pending,
-      'The status of the CDS should be pending'
-    );
-    _;
-  }
+  // modifier isPending(uint256 cdsId) {
+  //   require(
+  //     _cdsList[cdsId].status() == CDS.Status.pending,
+  //     'The status of the CDS should be pending'
+  //   );
+  //   _;
+  // }
 
-  modifier isActive(uint256 cdsId) {
-    require(
-      _cdsList[cdsId].status() == CDS.Status.active,
-      'The status of the CDS should be active'
-    );
-    _;
-  }
+  // modifier isActive(uint256 cdsId) {
+  //   require(
+  //     _cdsList[cdsId].status() == CDS.Status.active,
+  //     'The status of the CDS should be active'
+  //   );
+  //   _;
+  // }
 }

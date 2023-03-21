@@ -56,8 +56,7 @@
 			"create(bool,uint256,uint256,uint256,uint256,uint256,uint32,uint32)": "8a614dd5",
 			"expire(uint256)": "bf81bf43",
 			"payPremium(uint256)": "4364b26e",
-			"payPremiumByDeposit(uint256)": "2926ea2a",
-			"withdraw(uint256)": "2e1a7d4d"
+			"payPremiumByDeposit(uint256)": "2926ea2a"
 		}
 	},
 	"abi": [
@@ -370,25 +369,6 @@
 				}
 			],
 			"name": "payPremiumByDeposit",
-			"outputs": [
-				{
-					"internalType": "bool",
-					"name": "",
-					"type": "bool"
-				}
-			],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "amount",
-					"type": "uint256"
-				}
-			],
-			"name": "withdraw",
 			"outputs": [
 				{
 					"internalType": "bool",

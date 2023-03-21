@@ -66,16 +66,21 @@
 				"type": "event"
 			},
 			{
-				"inputs": [],
-				"name": "amountOfAsset",
-				"outputs": [
+				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "",
+						"name": "_initAssetPrice",
 						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "_isBuyerHost",
+						"type": "bool"
 					}
 				],
-				"stateMutability": "view",
+				"name": "accept",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -93,7 +98,67 @@
 			},
 			{
 				"inputs": [],
+				"name": "cancel",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "checkPayDatePassed",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "checkRoundsZero",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "claim",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "claimPrice",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "close",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAmountOfAsset",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -203,6 +268,19 @@
 			},
 			{
 				"inputs": [],
+				"name": "nextPayDate",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "owner",
 				"outputs": [
 					{
@@ -225,6 +303,13 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "premiumPaid",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -288,6 +373,19 @@
 					}
 				],
 				"name": "setInitAssetPrice",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "setNextPayDate",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -475,11 +573,11 @@
 			]
 		},
 		"contracts/CDS/CDS.sol": {
-			"keccak256": "0xa740a9943fddca8aed32033d85ec0a87005eb9bc6aa198e025572b4f9adc5ff3",
+			"keccak256": "0x2ee1969d5026f9d1c753f939ae85e69a195127a9837bc6492bf51562450880a1",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://d15029a23512eecdc43f0a9d27f9a1f5074a763aedb0550f3538b69cb75172a8",
-				"dweb:/ipfs/QmbUdti4qLqaeRFq51x23bCsPDG1TyDJkikM1sjNdLwB4V"
+				"bzz-raw://be899ef4b6237472dba0c824bb5ee4e291b1f8dff865f984fe7c54352b19d7fa",
+				"dweb:/ipfs/QmVZUEAzDH5mGaKcmgFX45LvxphfzXThaUJ6xu3uuEFAR1"
 			]
 		},
 		"contracts/CDS/PriceConsumer.sol": {
