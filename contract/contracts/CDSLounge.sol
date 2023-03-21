@@ -84,19 +84,21 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
   }
 
   function accept(
-    uint256 initAssetPrice,
-    uint256 cdsId
+    uint256 _initAssetPrice,
+    uint256 _cdsId
   ) external override returns (uint256) {
     require(
-      msg.sender != getBuyer(cdsId) && msg.sender != getSeller(cdsId),
+      msg.sender != getBuyer(_cdsId) && msg.sender != getSeller(_cdsId),
       'The host can not call the method'
     );
-    bool isSeller = (getSeller(cdsId) == address(0));
-    uint256 acceptedcdsId = _accept(isSeller, initAssetPrice, cdsId);
-    _sendDeposit(cdsId, !isSeller);
-    _sendFirstPremium(cdsId);
-    emit Accept(msg.sender, acceptedcdsId);
-    return acceptedcdsId;
+    
+    bool isSeller = (getSeller(_cdsId) == address(0));
+    _accept(isSeller, _initAssetPrice, _cdsId);
+    _sendDeposit(_cdsId, !isSeller);
+    _sendFirstPremium(_cdsId);
+
+    emit Accept(msg.sender, _cdsId);
+    return _cdsId;
   }
 
   function cancel(
@@ -120,10 +122,6 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
   function claim(
     uint256 cdsId
   ) external override isBuyer(cdsId) returns (bool) {
-    require(
-      getCDS(cdsId).getClaimReward() != 0,
-      'Current price is higher than the claim price in CDS'
-    );
     _claim(cdsId);
     uint256 claimReward = _afterClaim(cdsId);
     emit Claim(cdsId, claimReward);

@@ -2123,21 +2123,21 @@
     "absolutePath": "project:/contracts/CDS/PriceConsumer.sol",
     "exportedSymbols": {
       "PriceConsumer": [
-        1024
+        1208
       ],
       "PriceOracleMock": [
-        2492
+        2558
       ],
       "SafeMath": [
         644
       ]
     },
-    "id": 1025,
+    "id": 1209,
     "license": "MIT",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 942,
+        "id": 1126,
         "literals": [
           "solidity",
           "^",
@@ -2150,11 +2150,11 @@
       {
         "absolutePath": "project:/contracts/Oracle/PriceOracleMock.sol",
         "file": "../Oracle/PriceOracleMock.sol",
-        "id": 943,
+        "id": 1127,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1025,
-        "sourceUnit": 2493,
+        "scope": 1209,
+        "sourceUnit": 2559,
         "src": "57:39:7",
         "symbolAliases": [],
         "unitAlias": ""
@@ -2162,10 +2162,10 @@
       {
         "absolutePath": "@openzeppelin/contracts/utils/math/SafeMath.sol",
         "file": "@openzeppelin/contracts/utils/math/SafeMath.sol",
-        "id": 944,
+        "id": 1128,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1025,
+        "scope": 1209,
         "sourceUnit": 645,
         "src": "97:57:7",
         "symbolAliases": [],
@@ -2178,9 +2178,9 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 1024,
+        "id": 1208,
         "linearizedBaseContracts": [
-          1024
+          1208
         ],
         "name": "PriceConsumer",
         "nameLocation": "166:13:7",
@@ -2188,9 +2188,9 @@
         "nodes": [
           {
             "global": false,
-            "id": 947,
+            "id": 1131,
             "libraryName": {
-              "id": 945,
+              "id": 1129,
               "name": "SafeMath",
               "nameLocations": [
                 "190:8:7"
@@ -2202,7 +2202,7 @@
             "nodeType": "UsingForDirective",
             "src": "184:27:7",
             "typeName": {
-              "id": 946,
+              "id": 1130,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "203:7:7",
@@ -2214,36 +2214,36 @@
           },
           {
             "constant": false,
-            "id": 950,
+            "id": 1134,
             "mutability": "mutable",
             "name": "priceOracle",
             "nameLocation": "239:11:7",
             "nodeType": "VariableDeclaration",
-            "scope": 1024,
+            "scope": 1208,
             "src": "215:35:7",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_PriceOracleMock_$2492",
+              "typeIdentifier": "t_contract$_PriceOracleMock_$2558",
               "typeString": "contract PriceOracleMock"
             },
             "typeName": {
-              "id": 949,
+              "id": 1133,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 948,
+                "id": 1132,
                 "name": "PriceOracleMock",
                 "nameLocations": [
                   "215:15:7"
                 ],
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 2492,
+                "referencedDeclaration": 2558,
                 "src": "215:15:7"
               },
-              "referencedDeclaration": 2492,
+              "referencedDeclaration": 2558,
               "src": "215:15:7",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_PriceOracleMock_$2492",
+                "typeIdentifier": "t_contract$_PriceOracleMock_$2558",
                 "typeString": "contract PriceOracleMock"
               }
             },
@@ -2251,26 +2251,26 @@
           },
           {
             "body": {
-              "id": 961,
+              "id": 1145,
               "nodeType": "Block",
               "src": "285:50:7",
               "statements": [
                 {
                   "expression": {
-                    "id": 959,
+                    "id": 1143,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 955,
+                      "id": 1139,
                       "name": "priceOracle",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 950,
+                      "referencedDeclaration": 1134,
                       "src": "291:11:7",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_PriceOracleMock_$2492",
+                        "typeIdentifier": "t_contract$_PriceOracleMock_$2558",
                         "typeString": "contract PriceOracleMock"
                       }
                     },
@@ -2279,11 +2279,11 @@
                     "rightHandSide": {
                       "arguments": [
                         {
-                          "id": 957,
+                          "id": 1141,
                           "name": "_address",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 952,
+                          "referencedDeclaration": 1136,
                           "src": "321:8:7",
                           "typeDescriptions": {
                             "typeIdentifier": "t_address",
@@ -2298,18 +2298,18 @@
                             "typeString": "address"
                           }
                         ],
-                        "id": 956,
+                        "id": 1140,
                         "name": "PriceOracleMock",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 2492,
+                        "referencedDeclaration": 2558,
                         "src": "305:15:7",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_PriceOracleMock_$2492_$",
+                          "typeIdentifier": "t_type$_t_contract$_PriceOracleMock_$2558_$",
                           "typeString": "type(contract PriceOracleMock)"
                         }
                       },
-                      "id": 958,
+                      "id": 1142,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2321,23 +2321,23 @@
                       "src": "305:25:7",
                       "tryCall": false,
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_PriceOracleMock_$2492",
+                        "typeIdentifier": "t_contract$_PriceOracleMock_$2558",
                         "typeString": "contract PriceOracleMock"
                       }
                     },
                     "src": "291:39:7",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_PriceOracleMock_$2492",
+                      "typeIdentifier": "t_contract$_PriceOracleMock_$2558",
                       "typeString": "contract PriceOracleMock"
                     }
                   },
-                  "id": 960,
+                  "id": 1144,
                   "nodeType": "ExpressionStatement",
                   "src": "291:39:7"
                 }
               ]
             },
-            "id": 962,
+            "id": 1146,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
@@ -2345,17 +2345,17 @@
             "nameLocation": "-1:-1:-1",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 953,
+              "id": 1137,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 952,
+                  "id": 1136,
                   "mutability": "mutable",
                   "name": "_address",
                   "nameLocation": "275:8:7",
                   "nodeType": "VariableDeclaration",
-                  "scope": 962,
+                  "scope": 1146,
                   "src": "267:16:7",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2364,7 +2364,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 951,
+                    "id": 1135,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "267:7:7",
@@ -2380,12 +2380,12 @@
               "src": "266:18:7"
             },
             "returnParameters": {
-              "id": 954,
+              "id": 1138,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "285:0:7"
             },
-            "scope": 1024,
+            "scope": 1208,
             "src": "255:80:7",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -2393,23 +2393,23 @@
           },
           {
             "body": {
-              "id": 1022,
+              "id": 1206,
               "nodeType": "Block",
               "src": "410:297:7",
               "statements": [
                 {
                   "assignments": [
-                    970
+                    1154
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 970,
+                      "id": 1154,
                       "mutability": "mutable",
                       "name": "price",
                       "nameLocation": "424:5:7",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1022,
+                      "scope": 1206,
                       "src": "416:13:7",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -2418,7 +2418,7 @@
                         "typeString": "uint256"
                       },
                       "typeName": {
-                        "id": 969,
+                        "id": 1153,
                         "name": "uint256",
                         "nodeType": "ElementaryTypeName",
                         "src": "416:7:7",
@@ -2430,7 +2430,7 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 971,
+                  "id": 1155,
                   "nodeType": "VariableDeclarationStatement",
                   "src": "416:13:7"
                 },
@@ -2440,17 +2440,17 @@
                       "typeIdentifier": "t_uint32",
                       "typeString": "uint32"
                     },
-                    "id": 974,
+                    "id": 1158,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftExpression": {
-                      "id": 972,
+                      "id": 1156,
                       "name": "_assetType",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 964,
+                      "referencedDeclaration": 1148,
                       "src": "439:10:7",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint32",
@@ -2461,7 +2461,7 @@
                     "operator": "==",
                     "rightExpression": {
                       "hexValue": "30",
-                      "id": 973,
+                      "id": 1157,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -2487,17 +2487,17 @@
                         "typeIdentifier": "t_uint32",
                         "typeString": "uint32"
                       },
-                      "id": 989,
+                      "id": 1173,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "leftExpression": {
-                        "id": 987,
+                        "id": 1171,
                         "name": "_assetType",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 964,
+                        "referencedDeclaration": 1148,
                         "src": "524:10:7",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint32",
@@ -2508,7 +2508,7 @@
                       "operator": "==",
                       "rightExpression": {
                         "hexValue": "31",
-                        "id": 988,
+                        "id": 1172,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2534,17 +2534,17 @@
                           "typeIdentifier": "t_uint32",
                           "typeString": "uint32"
                         },
-                        "id": 1004,
+                        "id": 1188,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "leftExpression": {
-                          "id": 1002,
+                          "id": 1186,
                           "name": "_assetType",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 964,
+                          "referencedDeclaration": 1148,
                           "src": "609:10:7",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint32",
@@ -2555,7 +2555,7 @@
                         "operator": "==",
                         "rightExpression": {
                           "hexValue": "32",
-                          "id": 1003,
+                          "id": 1187,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -2575,27 +2575,27 @@
                           "typeString": "bool"
                         }
                       },
-                      "id": 1017,
+                      "id": 1201,
                       "nodeType": "IfStatement",
                       "src": "605:80:7",
                       "trueBody": {
-                        "id": 1016,
+                        "id": 1200,
                         "nodeType": "Block",
                         "src": "626:59:7",
                         "statements": [
                           {
                             "expression": {
-                              "id": 1014,
+                              "id": 1198,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
                               "lValueRequested": false,
                               "leftHandSide": {
-                                "id": 1005,
+                                "id": 1189,
                                 "name": "price",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 970,
+                                "referencedDeclaration": 1154,
                                 "src": "634:5:7",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
@@ -2611,14 +2611,14 @@
                                       "typeIdentifier": "t_rational_100000000_by_1",
                                       "typeString": "int_const 100000000"
                                     },
-                                    "id": 1012,
+                                    "id": 1196,
                                     "isConstant": false,
                                     "isLValue": false,
                                     "isPure": true,
                                     "lValueRequested": false,
                                     "leftExpression": {
                                       "hexValue": "3130",
-                                      "id": 1010,
+                                      "id": 1194,
                                       "isConstant": false,
                                       "isLValue": false,
                                       "isPure": true,
@@ -2636,7 +2636,7 @@
                                     "operator": "**",
                                     "rightExpression": {
                                       "hexValue": "38",
-                                      "id": 1011,
+                                      "id": 1195,
                                       "isConstant": false,
                                       "isLValue": false,
                                       "isPure": true,
@@ -2669,18 +2669,18 @@
                                     "expression": {
                                       "argumentTypes": [],
                                       "expression": {
-                                        "id": 1006,
+                                        "id": 1190,
                                         "name": "priceOracle",
                                         "nodeType": "Identifier",
                                         "overloadedDeclarations": [],
-                                        "referencedDeclaration": 950,
+                                        "referencedDeclaration": 1134,
                                         "src": "642:11:7",
                                         "typeDescriptions": {
-                                          "typeIdentifier": "t_contract$_PriceOracleMock_$2492",
+                                          "typeIdentifier": "t_contract$_PriceOracleMock_$2558",
                                           "typeString": "contract PriceOracleMock"
                                         }
                                       },
-                                      "id": 1007,
+                                      "id": 1191,
                                       "isConstant": false,
                                       "isLValue": false,
                                       "isPure": false,
@@ -2688,14 +2688,14 @@
                                       "memberLocation": "654:9:7",
                                       "memberName": "linkPrice",
                                       "nodeType": "MemberAccess",
-                                      "referencedDeclaration": 2433,
+                                      "referencedDeclaration": 2499,
                                       "src": "642:21:7",
                                       "typeDescriptions": {
                                         "typeIdentifier": "t_function_external_view$__$returns$_t_uint256_$",
                                         "typeString": "function () view external returns (uint256)"
                                       }
                                     },
-                                    "id": 1008,
+                                    "id": 1192,
                                     "isConstant": false,
                                     "isLValue": false,
                                     "isPure": false,
@@ -2711,7 +2711,7 @@
                                       "typeString": "uint256"
                                     }
                                   },
-                                  "id": 1009,
+                                  "id": 1193,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": false,
@@ -2726,7 +2726,7 @@
                                     "typeString": "function (uint256,uint256) pure returns (uint256)"
                                   }
                                 },
-                                "id": 1013,
+                                "id": 1197,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
@@ -2748,34 +2748,34 @@
                                 "typeString": "uint256"
                               }
                             },
-                            "id": 1015,
+                            "id": 1199,
                             "nodeType": "ExpressionStatement",
                             "src": "634:44:7"
                           }
                         ]
                       }
                     },
-                    "id": 1018,
+                    "id": 1202,
                     "nodeType": "IfStatement",
                     "src": "520:165:7",
                     "trueBody": {
-                      "id": 1001,
+                      "id": 1185,
                       "nodeType": "Block",
                       "src": "541:58:7",
                       "statements": [
                         {
                           "expression": {
-                            "id": 999,
+                            "id": 1183,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
                             "lValueRequested": false,
                             "leftHandSide": {
-                              "id": 990,
+                              "id": 1174,
                               "name": "price",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 970,
+                              "referencedDeclaration": 1154,
                               "src": "549:5:7",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_uint256",
@@ -2791,14 +2791,14 @@
                                     "typeIdentifier": "t_rational_100000000_by_1",
                                     "typeString": "int_const 100000000"
                                   },
-                                  "id": 997,
+                                  "id": 1181,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": true,
                                   "lValueRequested": false,
                                   "leftExpression": {
                                     "hexValue": "3130",
-                                    "id": 995,
+                                    "id": 1179,
                                     "isConstant": false,
                                     "isLValue": false,
                                     "isPure": true,
@@ -2816,7 +2816,7 @@
                                   "operator": "**",
                                   "rightExpression": {
                                     "hexValue": "38",
-                                    "id": 996,
+                                    "id": 1180,
                                     "isConstant": false,
                                     "isLValue": false,
                                     "isPure": true,
@@ -2849,18 +2849,18 @@
                                   "expression": {
                                     "argumentTypes": [],
                                     "expression": {
-                                      "id": 991,
+                                      "id": 1175,
                                       "name": "priceOracle",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 950,
+                                      "referencedDeclaration": 1134,
                                       "src": "557:11:7",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_contract$_PriceOracleMock_$2492",
+                                        "typeIdentifier": "t_contract$_PriceOracleMock_$2558",
                                         "typeString": "contract PriceOracleMock"
                                       }
                                     },
-                                    "id": 992,
+                                    "id": 1176,
                                     "isConstant": false,
                                     "isLValue": false,
                                     "isPure": false,
@@ -2868,14 +2868,14 @@
                                     "memberLocation": "569:8:7",
                                     "memberName": "ethPrice",
                                     "nodeType": "MemberAccess",
-                                    "referencedDeclaration": 2431,
+                                    "referencedDeclaration": 2497,
                                     "src": "557:20:7",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_function_external_view$__$returns$_t_uint256_$",
                                       "typeString": "function () view external returns (uint256)"
                                     }
                                   },
-                                  "id": 993,
+                                  "id": 1177,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": false,
@@ -2891,7 +2891,7 @@
                                     "typeString": "uint256"
                                   }
                                 },
-                                "id": 994,
+                                "id": 1178,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
@@ -2906,7 +2906,7 @@
                                   "typeString": "function (uint256,uint256) pure returns (uint256)"
                                 }
                               },
-                              "id": 998,
+                              "id": 1182,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -2928,34 +2928,34 @@
                               "typeString": "uint256"
                             }
                           },
-                          "id": 1000,
+                          "id": 1184,
                           "nodeType": "ExpressionStatement",
                           "src": "549:43:7"
                         }
                       ]
                     }
                   },
-                  "id": 1019,
+                  "id": 1203,
                   "nodeType": "IfStatement",
                   "src": "435:250:7",
                   "trueBody": {
-                    "id": 986,
+                    "id": 1170,
                     "nodeType": "Block",
                     "src": "456:58:7",
                     "statements": [
                       {
                         "expression": {
-                          "id": 984,
+                          "id": 1168,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftHandSide": {
-                            "id": 975,
+                            "id": 1159,
                             "name": "price",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 970,
+                            "referencedDeclaration": 1154,
                             "src": "464:5:7",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -2971,14 +2971,14 @@
                                   "typeIdentifier": "t_rational_100000000_by_1",
                                   "typeString": "int_const 100000000"
                                 },
-                                "id": 982,
+                                "id": 1166,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
                                 "lValueRequested": false,
                                 "leftExpression": {
                                   "hexValue": "3130",
-                                  "id": 980,
+                                  "id": 1164,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": true,
@@ -2996,7 +2996,7 @@
                                 "operator": "**",
                                 "rightExpression": {
                                   "hexValue": "38",
-                                  "id": 981,
+                                  "id": 1165,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": true,
@@ -3029,18 +3029,18 @@
                                 "expression": {
                                   "argumentTypes": [],
                                   "expression": {
-                                    "id": 976,
+                                    "id": 1160,
                                     "name": "priceOracle",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 950,
+                                    "referencedDeclaration": 1134,
                                     "src": "472:11:7",
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_PriceOracleMock_$2492",
+                                      "typeIdentifier": "t_contract$_PriceOracleMock_$2558",
                                       "typeString": "contract PriceOracleMock"
                                     }
                                   },
-                                  "id": 977,
+                                  "id": 1161,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": false,
@@ -3048,14 +3048,14 @@
                                   "memberLocation": "484:8:7",
                                   "memberName": "btcPrice",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 2429,
+                                  "referencedDeclaration": 2495,
                                   "src": "472:20:7",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_view$__$returns$_t_uint256_$",
                                     "typeString": "function () view external returns (uint256)"
                                   }
                                 },
-                                "id": 978,
+                                "id": 1162,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
@@ -3071,7 +3071,7 @@
                                   "typeString": "uint256"
                                 }
                               },
-                              "id": 979,
+                              "id": 1163,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -3086,7 +3086,7 @@
                                 "typeString": "function (uint256,uint256) pure returns (uint256)"
                               }
                             },
-                            "id": 983,
+                            "id": 1167,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -3108,7 +3108,7 @@
                             "typeString": "uint256"
                           }
                         },
-                        "id": 985,
+                        "id": 1169,
                         "nodeType": "ExpressionStatement",
                         "src": "464:43:7"
                       }
@@ -3117,26 +3117,26 @@
                 },
                 {
                   "expression": {
-                    "id": 1020,
+                    "id": 1204,
                     "name": "price",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 970,
+                    "referencedDeclaration": 1154,
                     "src": "697:5:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "functionReturnParameters": 968,
-                  "id": 1021,
+                  "functionReturnParameters": 1152,
+                  "id": 1205,
                   "nodeType": "Return",
                   "src": "690:12:7"
                 }
               ]
             },
             "functionSelector": "cbed2449",
-            "id": 1023,
+            "id": 1207,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -3144,17 +3144,17 @@
             "nameLocation": "348:12:7",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 965,
+              "id": 1149,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 964,
+                  "id": 1148,
                   "mutability": "mutable",
                   "name": "_assetType",
                   "nameLocation": "368:10:7",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1023,
+                  "scope": 1207,
                   "src": "361:17:7",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3163,7 +3163,7 @@
                     "typeString": "uint32"
                   },
                   "typeName": {
-                    "id": 963,
+                    "id": 1147,
                     "name": "uint32",
                     "nodeType": "ElementaryTypeName",
                     "src": "361:6:7",
@@ -3178,17 +3178,17 @@
               "src": "360:19:7"
             },
             "returnParameters": {
-              "id": 968,
+              "id": 1152,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 967,
+                  "id": 1151,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1023,
+                  "scope": 1207,
                   "src": "401:7:7",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3197,7 +3197,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 966,
+                    "id": 1150,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "401:7:7",
@@ -3211,14 +3211,14 @@
               ],
               "src": "400:9:7"
             },
-            "scope": 1024,
+            "scope": 1208,
             "src": "339:368:7",
             "stateMutability": "view",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 1025,
+        "scope": 1209,
         "src": "157:552:7",
         "usedErrors": []
       }
@@ -3231,7 +3231,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.11",
-  "updatedAt": "2023-03-21T06:14:00.569Z",
+  "updatedAt": "2023-03-21T13:59:46.813Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

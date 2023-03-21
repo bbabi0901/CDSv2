@@ -16,6 +16,8 @@ contract CDSBank is CDSFactory {
     token = IERC20(0xf904778c896C24cC2284E5E5F86BAa4c8F75734D);
   }
 
+  
+  // transactions
 
   function _sendDeposit(uint256 _cdsId, bool _isBuyer) internal returns (bool) {
     uint256 deposit;
@@ -36,8 +38,6 @@ contract CDSBank is CDSFactory {
     bool sent = token.transfer(getSeller(_cdsId), premium);
     require(sent, 'Sending first premium failed');
     deposits[_cdsId][0] -= premium;
-    uint32 currRounds = getCDS(_cdsId).rounds();
-    getCDS(_cdsId).setRounds(currRounds - 1);
     return true;
   }
 
@@ -99,7 +99,7 @@ contract CDSBank is CDSFactory {
         (block.timestamp <= nextPayDate),
       'Invalid date to pay premium'
     );
-    
+
     uint256 premium = getCDS(_cdsId).premium();
     bool sent = token.transferFrom(
       getBuyer(_cdsId),
@@ -115,6 +115,9 @@ contract CDSBank is CDSFactory {
     }
   }
 
+  
+  // modifiers
+  
   modifier isBuyer(uint256 cdsId) {
     require(msg.sender == getBuyer(cdsId), 'Only buyer of the CDS can call');
     _;

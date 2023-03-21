@@ -10,7 +10,6 @@ contract CDSFactory {
 
   mapping(uint256 => CDS) private _cdsList;
   mapping(address => address[]) public ownedCDS;
-  // delete mapping[key]
 
   function _create(
     bool _isBuyer,
@@ -43,20 +42,15 @@ contract CDSFactory {
     bool _isBuyerHost,
     uint256 _initAssetPrice,
     uint256 _targetCDSId
-  ) internal returns (uint256) {
+  ) internal {
     CDS targetCDS = _cdsList[_targetCDSId];
     
     targetCDS.accept(_initAssetPrice, _isBuyerHost);
     
     ownedCDS[targetCDS.getBuyer()].push(address(targetCDS));
     ownedCDS[targetCDS.getSeller()].push(address(targetCDS));
-
-    return _targetCDSId;
   }
 
-  // function delOwnedCDS(address owner, uint256 cdsId) private returns (bool) {
-  //   return true;
-  // }
 
   function _cancel(uint256 _targetCDSId) internal {
     getCDS(_targetCDSId).cancel();
@@ -66,12 +60,12 @@ contract CDSFactory {
     getCDS(_targetCDSId).close();
   }
 
-  function _payPremium(uint256 _targetCDSId) internal {
-    getCDS(_targetCDSId).premiumPaid();
-  }
-
   function _claim(uint256 _targetCDSId) internal {
     getCDS(_targetCDSId).claim();
+  }
+
+  function _payPremium(uint256 _targetCDSId) internal {
+    getCDS(_targetCDSId).premiumPaid();
   }
 
   // getter 
@@ -90,21 +84,4 @@ contract CDSFactory {
   function getSeller(uint256 cdsId) public view returns (address) {
     return _cdsList[cdsId].getSeller();
   }
-
-  // modifiers
-  // modifier isPending(uint256 cdsId) {
-  //   require(
-  //     _cdsList[cdsId].status() == CDS.Status.pending,
-  //     'The status of the CDS should be pending'
-  //   );
-  //   _;
-  // }
-
-  // modifier isActive(uint256 cdsId) {
-  //   require(
-  //     _cdsList[cdsId].status() == CDS.Status.active,
-  //     'The status of the CDS should be active'
-  //   );
-  //   _;
-  // }
 }

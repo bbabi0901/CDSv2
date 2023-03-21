@@ -60,6 +60,87 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
     status = Status.pending;
   }
 
+
+  // transactions
+
+  function premiumPaid() external onlyOwner isActive {
+    require(rounds > 0, 'Round already ended');
+    nextPayDate += 4 weeks;
+    setRounds(rounds - 1);
+  }
+
+  function accept(uint256 _initAssetPrice, bool _isBuyerHost) external onlyOwner isPending {
+    setInitAssetPrice(_initAssetPrice);
+    setParticipants(msg.sender, !_isBuyerHost);
+    setStatus(CDS.Status.active);
+    nextPayDate = block.timestamp + 4 weeks;
+    rounds -= 1;
+  }
+
+  function cancel() external onlyOwner isPending {
+    setStatus(CDS.Status.inactive);
+  }
+
+  function close() external onlyOwner isActive {
+    setStatus(CDS.Status.expired);
+  }
+
+  function claim() external onlyOwner isActive {
+    require(
+      getClaimReward() != 0,
+      'Current price is higher than the claim price in CDS'
+    );
+    setStatus(CDS.Status.claimed);
+  }
+
+  function checkRoundsZero() external view isActive returns (bool) {
+    return (rounds == 0);
+  }
+
+  function checkPayDatePassed() external view isActive returns (bool) {
+    return (block.timestamp >= nextPayDate);
+  }
+
+
+  // setter
+
+  function setInitAssetPrice(uint256 _initAssetPrice) public returns (uint256) {
+    initAssetPrice = _initAssetPrice;
+    return initAssetPrice;
+  }
+
+  function setStatus(Status _status) private onlyOwner returns (Status) {
+    status = _status;
+    return status;
+  }
+
+  function setParticipants(address _participants, bool _isBuyer) public onlyOwner {
+    _isBuyer ? setBuyer(_participants) : setSeller(_participants);
+  }
+
+  function setBuyer(address _buyer) public onlyOwner returns (address) {
+    buyer = _buyer;
+    return buyer;
+  }
+
+  function setSeller(address _seller) public onlyOwner returns (address) {
+    seller = _seller;
+    return seller;
+  }
+
+  function setRounds(uint32 _rounds) private onlyOwner returns (uint32) {
+    rounds = _rounds;
+    return rounds;
+  }
+
+  function setNextPayDate() private onlyOwner returns (uint256) {
+    nextPayDate += 4 weeks;
+    return nextPayDate;
+  }
+
+
+  // getter
+
   function getPrices() public view returns (uint256[5] memory) {
     return [
       initAssetPrice,
@@ -98,74 +179,9 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
       );
   }
 
-  function setInitAssetPrice(uint256 _initAssetPrice) public returns (uint256) {
-    initAssetPrice = _initAssetPrice;
-    return initAssetPrice;
-  }
-
-  function setStatus(Status _status) public onlyOwner returns (Status) {
-    status = _status;
-    return status;
-  }
-
-  function setParticipants(address _participants, bool _isBuyer) public onlyOwner {
-    _isBuyer ? setBuyer(_participants) : setSeller(_participants);
-  }
-
-  function setBuyer(address _buyer) public onlyOwner returns (address) {
-    buyer = _buyer;
-    return buyer;
-  }
-
-  function setSeller(address _seller) public onlyOwner returns (address) {
-    seller = _seller;
-    return seller;
-  }
-
-  function setRounds(uint32 _rounds) public onlyOwner returns (uint32) {
-    rounds = _rounds;
-    return rounds;
-  }
-
-  function setNextPayDate() public onlyOwner returns (uint256) {
-    nextPayDate += 4 weeks;
-    return nextPayDate;
-  }
-
-  function premiumPaid() external onlyOwner isActive {
-    require(rounds > 0, 'Round already ended');
-    nextPayDate += 4 weeks;
-    setRounds(rounds - 1);
-  }
-
-  function accept(uint256 _initAssetPrice, bool _isBuyerHost) external onlyOwner isPending {
-    setInitAssetPrice(_initAssetPrice);
-    nextPayDate = block.timestamp + 4 weeks;
-    setParticipants(msg.sender, !_isBuyerHost);
-    setStatus(CDS.Status.active);
-  }
-
-  function cancel() external isPending {
-    setStatus(CDS.Status.inactive);
-  }
-
-  function close() external isActive {
-    setStatus(CDS.Status.expired);
-  }
-
-  function claim() external isActive {
-    setStatus(CDS.Status.claimed);
-  }
-
-  function checkRoundsZero() external view isActive returns (bool) {
-    return (rounds == 0);
-  }
-
-  function checkPayDatePassed() external view isActive returns (bool) {
-    return (block.timestamp >= nextPayDate);
-  }
 
   // modifiers
+
   modifier isPending() {
     require(
       status == Status.pending,
