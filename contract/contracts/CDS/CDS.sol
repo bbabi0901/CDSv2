@@ -6,7 +6,10 @@ import '../libs/LibSwap.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 // PriceConsumberGoerli({assetType})
-contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a0945222) {
+contract CDS is
+  Ownable,
+  PriceConsumer(0x2ABDf4a7aD585EffCc16b61643e058130b1311b8)
+{
   using LibSwap for uint256;
 
   PriceOracleMock private priceOracle;
@@ -60,7 +63,6 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
     status = Status.pending;
   }
 
-
   // transactions
 
   function premiumPaid() external onlyOwner isActive {
@@ -69,9 +71,13 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
     setRounds(rounds - 1);
   }
 
-  function accept(uint256 _initAssetPrice, bool _isBuyerHost) external onlyOwner isPending {
+  function accept(
+    uint256 _initAssetPrice,
+    address msgSender,
+    bool _isBuyerHost // true when seller is accepting
+  ) external onlyOwner isPending {
     setInitAssetPrice(_initAssetPrice);
-    setParticipants(msg.sender, !_isBuyerHost);
+    setParticipants(msgSender, !_isBuyerHost);
     setStatus(CDS.Status.active);
     nextPayDate = block.timestamp + 4 weeks;
     rounds -= 1;
@@ -101,7 +107,6 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
     return (block.timestamp >= nextPayDate);
   }
 
-
   // setter
 
   function setInitAssetPrice(uint256 _initAssetPrice) public returns (uint256) {
@@ -114,7 +119,10 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
     return status;
   }
 
-  function setParticipants(address _participants, bool _isBuyer) public onlyOwner {
+  function setParticipants(
+    address _participants,
+    bool _isBuyer
+  ) public onlyOwner {
     _isBuyer ? setBuyer(_participants) : setSeller(_participants);
   }
 
@@ -138,7 +146,6 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
     return nextPayDate;
   }
 
-
   // getter
 
   function getPrices() public view returns (uint256[5] memory) {
@@ -152,10 +159,7 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
   }
 
   function getAmountOfAsset() public view returns (uint256) {
-    return initAssetPrice.calcAmountOfAsset(
-      liquidationPrice,
-      sellerDeposit
-    );
+    return initAssetPrice.calcAmountOfAsset(liquidationPrice, sellerDeposit);
   }
 
   function getBuyer() public view returns (address) {
@@ -179,7 +183,6 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
       );
   }
 
-
   // modifiers
 
   modifier isPending() {
@@ -191,10 +194,7 @@ contract CDS is Ownable, PriceConsumer(0x21558C2cDA098e7e0ac7d38775B3E2b4a094522
   }
 
   modifier isActive() {
-    require(
-      status == Status.active,
-      'The status of the CDS should be active'
-    );
+    require(status == Status.active, 'The status of the CDS should be active');
     _;
   }
 }

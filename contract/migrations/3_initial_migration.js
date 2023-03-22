@@ -8,7 +8,7 @@ require('dotenv').config();
 
 const { PRICE_ORACLE_ADDRESS, FUSD_ADDRESS } = process.env;
 
-module.exports = async function (deployer, network) {
+module.exports = async function (deployer, network, accounts) {
   console.log(`Deploying ON : ** ${network.toUpperCase()} **`);
 
   const priceOracle = await PriceOracleMock.at(PRICE_ORACLE_ADDRESS);
@@ -24,4 +24,9 @@ Deployed on ***${network.toUpperCase()}*** network
     Oracle ADDR:  ${priceOracle.address}
     FUSD ADDR  :  ${fusd.address}`,
   );
+  console.log(`Deployed on ***${network.toUpperCase()}*** network
+  CDS ADDRESS:  ${CDS.address}
+  CDS TX HASH:  ${CDSreceipt.transactionHash}
+  Oracle ADDR:  ${priceOracle.address}
+  FUSD ADDR  :  ${fusd.address}`);
 };

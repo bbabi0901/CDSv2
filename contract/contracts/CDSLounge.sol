@@ -31,9 +31,7 @@ interface CDSInterface {
 
   function payPremium(uint256 cdsId) external returns (bool);
 
-  function payPremiumByDeposit(
-    uint256 cdsId
-  ) external returns (bool);
+  function payPremiumByDeposit(uint256 cdsId) external returns (bool);
 
   event Create(
     address indexed hostAddr,
@@ -62,6 +60,7 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
     uint32 totalRounds,
     uint32 assetType
   ) external override returns (uint256) {
+    // _sendDeposit(premium, sellerDeposit, isBuyer);
     uint256 newCDSId = _create(
       isBuyer,
       initAssetPrice,
@@ -73,6 +72,7 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
       assetType
     );
     _sendDeposit(newCDSId, isBuyer);
+
     emit Create(
       msg.sender,
       isBuyer,
@@ -91,10 +91,11 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
       msg.sender != getBuyer(_cdsId) && msg.sender != getSeller(_cdsId),
       'The host can not call the method'
     );
-    
-    bool isSeller = (getSeller(_cdsId) == address(0));
+
+    bool isSeller = (getSeller(_cdsId) == address(0)); // true when seller is accepting 
     _accept(isSeller, _initAssetPrice, _cdsId);
-    _sendDeposit(_cdsId, !isSeller);
+    
+    _sendDeposit(_cdsId, !isSeller); // false when seller is accepting
     _sendFirstPremium(_cdsId);
 
     emit Accept(msg.sender, _cdsId);
@@ -157,3 +158,5 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
 // cds contract가 deposit 토큰 들고 있도록.
 // cdsLounge는 allowance from cds contract
 // 정산도 각 cds 안에서하고 cdsLounge는 수수료 취급.
+
+// pending list => 서버 없이 보여줄 수 있고, offer도 가능. 

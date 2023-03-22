@@ -13,10 +13,9 @@ contract CDSBank is CDSFactory {
   mapping(uint256 => uint256[2]) public deposits;
 
   constructor() {
-    token = IERC20(0xf904778c896C24cC2284E5E5F86BAa4c8F75734D);
+    token = IERC20(0x44F818644e6BbC02E58C81B550d80611857233b5);
   }
 
-  
   // transactions
 
   function _sendDeposit(uint256 _cdsId, bool _isBuyer) internal returns (bool) {
@@ -30,6 +29,7 @@ contract CDSBank is CDSFactory {
       token.transferFrom(getSeller(_cdsId), address(this), deposit);
       deposits[_cdsId][1] = deposit;
     }
+    // token.transferFrom(msg.sender, address(this), deposit);
     return true;
   }
 
@@ -75,17 +75,20 @@ contract CDSBank is CDSFactory {
     bool isDepositZero = (deposits[_cdsId][0] == 0);
     // bool byRounds = (currRounds == 0);
     // bool byDeposit = (deposits[_cdsId][0] == 0);
-    require((isRoundZero && isPayDatePassed) || (isDepositZero && isPayDatePassed), 'Buyer deposit / Rounds remaining');
+    require(
+      (isRoundZero && isPayDatePassed) || (isDepositZero && isPayDatePassed),
+      'Buyer deposit / Rounds remaining'
+    );
     getCDS(_cdsId).close();
   }
 
   function _sendPremiumByDeposit(uint256 _cdsId) internal {
     bool isPayDatePassed = getCDS(_cdsId).checkPayDatePassed();
-    require(isPayDatePassed, "Invalid date to pay premium by deposit");
+    require(isPayDatePassed, 'Invalid date to pay premium by deposit');
 
     uint256 premium = getCDS(_cdsId).premium();
     require(deposits[_cdsId][0] >= premium, 'Not enough deposit');
-    
+
     bool sent = token.transfer(getSeller(_cdsId), premium);
     require(sent, 'Sending premium failed');
 
@@ -115,9 +118,8 @@ contract CDSBank is CDSFactory {
     }
   }
 
-  
   // modifiers
-  
+
   modifier isBuyer(uint256 cdsId) {
     require(msg.sender == getBuyer(cdsId), 'Only buyer of the CDS can call');
     _;

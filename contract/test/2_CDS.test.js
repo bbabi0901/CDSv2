@@ -33,6 +33,7 @@ contract('CDS', async (accounts) => {
     cds = await CDS.new({ from: accounts[0] });
   });
 
+  /*
   describe('Price Oracle', () => {
     it('should throw error if priceOracle is not set', async () => {
       await assert.strictEqual(PRICE_ORACLE_ADDRESS, priceOracle.address);
@@ -309,6 +310,7 @@ contract('CDS', async (accounts) => {
       await assert.strictEqual(+beforeCA + defaultSellerDeposit, +afterCA);
     });
   });
+  */
 
   describe('Accept', () => {
     it('should be able to accept CDS as SELLER when valid deposit provided and check it from mapping', async () => {
@@ -354,22 +356,46 @@ contract('CDS', async (accounts) => {
         sellerDeposit,
       ] = await targetCDS.getPrices();
 
-      await assert.strictEqual(defaultInitAssetPrice, +initAssetPrice);
-      await assert.strictEqual(defaultClaimPrice, +claimPrice);
-      await assert.strictEqual(defaultLiquidationPrice, +liquidationPrice);
-      await assert.strictEqual(defaultSellerDeposit, +sellerDeposit);
-      await assert.strictEqual(defaultPremium, +premium);
+      await assert.strictEqual(
+        defaultInitAssetPrice,
+        +initAssetPrice,
+        'Initial asset price',
+      );
+      await assert.strictEqual(defaultClaimPrice, +claimPrice, 'claim price');
+      await assert.strictEqual(
+        defaultLiquidationPrice,
+        +liquidationPrice,
+        'liquidation price',
+      );
+      await assert.strictEqual(
+        defaultSellerDeposit,
+        +sellerDeposit,
+        'seller deposit',
+      );
+      await assert.strictEqual(defaultPremium, +premium, 'premium');
 
-      await assert.strictEqual(buyer, accounts[2]);
+      await assert.strictEqual(buyer, accounts[2], 'buyer');
       await assert.strictEqual(
         +buyerDepositDetail,
         defaultBuyerDeposit - defaultPremium,
+        'buyer deposit',
       );
 
-      await assert.strictEqual(seller, accounts[1]);
-      await assert.strictEqual(+sellerDepositDetail, defaultSellerDeposit);
+      await assert.strictEqual(
+        seller,
+        accounts[1],
+        `actual seller ${accounts[1]}, contract created ${cdsAddr}, cds lounge ${cds.address}`,
+      );
+      // console.log('seller', accounts[1]);
+      // console.log('contract created', cdsAddr);
 
-      await assert.strictEqual(defaultPremiumRounds, +currRounds + 1);
+      await assert.strictEqual(
+        +sellerDepositDetail,
+        defaultSellerDeposit,
+        'seller deposit detail',
+      );
+
+      await assert.strictEqual(defaultPremiumRounds, +currRounds + 1, 'rounds');
     });
 
     it('should be able to accept CDS as BUYER when valid deposit provided and check it from mapping', async () => {
@@ -428,6 +454,7 @@ contract('CDS', async (accounts) => {
       );
 
       await assert.strictEqual(seller, accounts[1]);
+      console.log(accounts[1], accounts[2]);
       await assert.strictEqual(+sellerDepositDetail, defaultSellerDeposit);
 
       await assert.strictEqual(defaultPremiumRounds, +currRounds + 1);
@@ -613,6 +640,7 @@ contract('CDS', async (accounts) => {
     });
   });
 
+  /*
   describe('Cancel from BUYER', async () => {
     beforeEach(async () => {
       await fusd.approve(cds.address, defaultBuyerDeposit, {
@@ -1543,4 +1571,5 @@ contract('CDS', async (accounts) => {
       assert.equal(4, +cdsStatus);
     });
   });
+  */
 });

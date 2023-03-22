@@ -2,7 +2,7 @@
 const CDS = artifacts.require('CDSLounge');
 const PriceOracleMock = artifacts.require('PriceOracleMock');
 const FUSD = artifacts.require('FUSD');
-// const Swaps = artifacts.require('Swaps');
+const CDSInstance = artifacts.require('CDS');
 
 require('dotenv').config();
 
@@ -47,10 +47,14 @@ module.exports = async function (deployer, network, accounts) {
     const priceOracleMock = await PriceOracleMock.at(PRICE_ORACLE_ADDRESS);
     const fusd = await FUSD.at(FUSD_ADDRESS);
 
+    /*
     await fusd.transfer(accounts[1], defaultTokenFaucet, { from: accounts[0] });
     await fusd.transfer(accounts[2], defaultTokenFaucet, { from: accounts[0] });
     await fusd.transfer(accounts[3], defaultTokenFaucet, { from: accounts[0] });
     await fusd.transfer(accounts[4], defaultTokenFaucet, { from: accounts[0] });
+    console.log('transfer Done');
+    */
+
     // settings
     const cds = await CDS.deployed();
 
@@ -58,6 +62,10 @@ module.exports = async function (deployer, network, accounts) {
     await fusd.approve(cds.address, defaultCaseBTC.defaultBuyerDeposit, {
       from: accounts[2],
     });
+    const bal = await fusd.balanceOf(accounts[2]);
+    let allowance = await fusd.allowance(accounts[2], cds.address);
+    console.log(+bal, +allowance);
+
     await cds.create(
       defaultHostSetting,
       defaultCaseBTC.defaultInitAssetPrice,
@@ -70,9 +78,19 @@ module.exports = async function (deployer, network, accounts) {
       { from: accounts[2] },
     );
     [currentCDSId] = await cds.getCDSId();
+
     await fusd.approve(cds.address, defaultCaseBTC.defaultSellerDeposit, {
       from: accounts[1],
     });
+
+    //
+    const instanceAddr = await cds.getCDS(currentCDSId);
+    allowance = await fusd.allowance(accounts[1], cds.address);
+    const cdsInstance = await CDSInstance.at(instanceAddr);
+    const prices = await cdsInstance.getPrices();
+    console.log('allowance vs seller Deposit: ', +prices[4] === +allowance);
+    //
+
     await cds.accept(defaultCaseBTC.defaultInitAssetPrice, currentCDSId, {
       from: accounts[1],
     });
