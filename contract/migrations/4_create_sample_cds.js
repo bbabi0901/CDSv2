@@ -63,7 +63,7 @@ module.exports = async function (deployer, network, accounts) {
       from: accounts[2],
     });
     const bal = await fusd.balanceOf(accounts[2]);
-    let allowance = await fusd.allowance(accounts[2], cds.address);
+    const allowance = await fusd.allowance(accounts[2], cds.address);
     console.log(+bal, +allowance);
 
     await cds.create(
@@ -82,14 +82,6 @@ module.exports = async function (deployer, network, accounts) {
     await fusd.approve(cds.address, defaultCaseBTC.defaultSellerDeposit, {
       from: accounts[1],
     });
-
-    //
-    const instanceAddr = await cds.getCDS(currentCDSId);
-    allowance = await fusd.allowance(accounts[1], cds.address);
-    const cdsInstance = await CDSInstance.at(instanceAddr);
-    const prices = await cdsInstance.getPrices();
-    console.log('allowance vs seller Deposit: ', +prices[4] === +allowance);
-    //
 
     await cds.accept(defaultCaseBTC.defaultInitAssetPrice, currentCDSId, {
       from: accounts[1],
@@ -709,9 +701,9 @@ module.exports = async function (deployer, network, accounts) {
       from: accounts[1],
     });
 
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 2 * premium
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 1 * premium
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 0 * premium
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[1] }); // current deposit = 2 * premium
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[1] }); // current deposit = 1 * premium
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[1] }); // current deposit = 0 * premium
     await cds.expire(currentCDSId, { from: accounts[1] }); // seller calls expire
 
     console.log('--case 9 of btc created');
@@ -740,9 +732,9 @@ module.exports = async function (deployer, network, accounts) {
       from: accounts[4],
     });
 
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 2 * premium
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 1 * premium
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 0 * premium
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[4] }); // current deposit = 2 * premium
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[4] }); // current deposit = 1 * premium
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[4] }); // current deposit = 0 * premium
     await cds.expire(currentCDSId, { from: accounts[4] }); // seller calls expire
 
     console.log('--case 9 of eth created');
@@ -771,9 +763,10 @@ module.exports = async function (deployer, network, accounts) {
       from: accounts[2],
     });
 
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 2 * premium
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 1 * premium
-    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[0] }); // current deposit = 0 * premium
+    console.log('accept done');
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[2] }); // current deposit = 2 * premium
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[2] }); // current deposit = 1 * premium
+    await cds.payPremiumByDeposit(currentCDSId, { from: accounts[2] }); // current deposit = 0 * premium
     await cds.expire(currentCDSId, { from: accounts[2] }); // seller calls expire
 
     console.log('--case 9 of link created');

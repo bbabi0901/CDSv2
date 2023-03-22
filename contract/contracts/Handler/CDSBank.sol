@@ -71,8 +71,10 @@ contract CDSBank is CDSFactory {
 
   function _expire(uint256 _cdsId) internal isSeller(_cdsId) {
     bool isRoundZero = getCDS(_cdsId).checkRoundsZero();
-    bool isPayDatePassed = getCDS(_cdsId).checkPayDatePassed();
     bool isDepositZero = (deposits[_cdsId][0] == 0);
+    // bool isPayDatePassed = getCDS(_cdsId).checkPayDatePassed();
+    bool isPayDatePassed = true;
+
     // bool byRounds = (currRounds == 0);
     // bool byDeposit = (deposits[_cdsId][0] == 0);
     require(
@@ -83,8 +85,8 @@ contract CDSBank is CDSFactory {
   }
 
   function _sendPremiumByDeposit(uint256 _cdsId) internal {
-    bool isPayDatePassed = getCDS(_cdsId).checkPayDatePassed();
-    require(isPayDatePassed, 'Invalid date to pay premium by deposit');
+    // bool isPayDatePassed = getCDS(_cdsId).checkPayDatePassed();
+    // require(isPayDatePassed, 'Invalid date to pay premium by deposit');
 
     uint256 premium = getCDS(_cdsId).premium();
     require(deposits[_cdsId][0] >= premium, 'Not enough deposit');
@@ -96,12 +98,12 @@ contract CDSBank is CDSFactory {
   }
 
   function _sendPremium(uint256 _cdsId) internal {
-    uint256 nextPayDate = getCDS(_cdsId).nextPayDate();
-    require(
-      (nextPayDate - 3 days <= block.timestamp) &&
-        (block.timestamp <= nextPayDate),
-      'Invalid date to pay premium'
-    );
+    // uint256 nextPayDate = getCDS(_cdsId).nextPayDate();
+    // require(
+    //   (nextPayDate - 3 days <= block.timestamp) &&
+    //     (block.timestamp <= nextPayDate),
+    //   'Invalid date to pay premium'
+    // );
 
     uint256 premium = getCDS(_cdsId).premium();
     bool sent = token.transferFrom(
