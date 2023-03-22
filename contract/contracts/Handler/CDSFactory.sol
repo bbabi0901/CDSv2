@@ -9,8 +9,8 @@ contract CDSFactory {
   Counters.Counter internal _cdsId;
 
   mapping(uint256 => CDS) private _cdsList;
-  mapping(address => address[]) public ownedCDS;
-  uint256[] public pendings;
+  mapping(address => address[]) private ownedCDS;
+  uint256[] public pendingCDSs; 
 
   function _create(
     bool _isBuyer,
@@ -84,5 +84,9 @@ contract CDSFactory {
 
   function getSeller(uint256 cdsId) public view returns (address) {
     return _cdsList[cdsId].getSeller();
+  }
+
+  function getOwnedCDS(address owner) external view returns (address[] memory) {
+    return ownedCDS[owner];
   }
 }

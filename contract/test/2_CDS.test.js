@@ -379,13 +379,7 @@ contract('CDS', async (accounts) => {
         'buyer deposit',
       );
 
-      await assert.strictEqual(
-        seller,
-        accounts[1],
-        `actual seller ${accounts[1]}, contract created ${cdsAddr}, cds lounge ${cds.address}`,
-      );
-      // console.log('seller', accounts[1]);
-      // console.log('contract created', cdsAddr);
+      await assert.strictEqual(seller, accounts[1], 'seller');
 
       await assert.strictEqual(
         +sellerDepositDetail,
@@ -452,7 +446,6 @@ contract('CDS', async (accounts) => {
       );
 
       await assert.strictEqual(seller, accounts[1]);
-      console.log(accounts[1], accounts[2]);
       await assert.strictEqual(+sellerDepositDetail, defaultSellerDeposit);
 
       await assert.strictEqual(defaultPremiumRounds, +currRounds + 1);

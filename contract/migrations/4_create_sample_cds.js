@@ -47,13 +47,11 @@ module.exports = async function (deployer, network, accounts) {
     const priceOracleMock = await PriceOracleMock.at(PRICE_ORACLE_ADDRESS);
     const fusd = await FUSD.at(FUSD_ADDRESS);
 
-    /*
     await fusd.transfer(accounts[1], defaultTokenFaucet, { from: accounts[0] });
     await fusd.transfer(accounts[2], defaultTokenFaucet, { from: accounts[0] });
     await fusd.transfer(accounts[3], defaultTokenFaucet, { from: accounts[0] });
     await fusd.transfer(accounts[4], defaultTokenFaucet, { from: accounts[0] });
     console.log('transfer Done');
-    */
 
     // settings
     const cds = await CDS.deployed();

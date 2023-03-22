@@ -66,6 +66,25 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"name": "getOwnedCDS",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "uint256",
 						"name": "cdsId",
 						"type": "uint256"
@@ -85,36 +104,12 @@
 			{
 				"inputs": [
 					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					},
-					{
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
 					}
 				],
-				"name": "ownedCDS",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "pendings",
+				"name": "pendingCDSs",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -202,11 +197,11 @@
 			]
 		},
 		"contracts/Handler/CDSFactory.sol": {
-			"keccak256": "0x87b7ca271738473e981bf363089ee89ad4f44ac8340e4f97b24085cc57a3542c",
+			"keccak256": "0x6263b9b7c855ba20bffc441d9f9eacd9f814c27b03e5136471ca24ff25cb3534",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://ffa63781a2dcdc975e614aea06b7a65d9463719980312674a7d1647c207e13e7",
-				"dweb:/ipfs/QmanP41ExDE7EtsoRTLsYWG8gSkDQtkX8vkdTTnoAv63ER"
+				"bzz-raw://c2e1596ff23eff4c8b31c5c0ade681186e7c944ed6d6d654851f72ecbb3a12a5",
+				"dweb:/ipfs/Qmc7QDBfzHd5MUFEX2GEdzVz6sq6JQFHvZVLfVW4GPCAFb"
 			]
 		},
 		"contracts/Oracle/PriceOracleMock.sol": {
