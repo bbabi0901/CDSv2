@@ -100,25 +100,6 @@
 				],
 				"stateMutability": "view",
 				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "pendingCDSs",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
 			}
 		],
 		"devdoc": {
@@ -197,11 +178,11 @@
 			]
 		},
 		"contracts/Handler/CDSFactory.sol": {
-			"keccak256": "0x6263b9b7c855ba20bffc441d9f9eacd9f814c27b03e5136471ca24ff25cb3534",
+			"keccak256": "0x740c2110b57b204cd9ed3f60f78a54ad3aaa2aa4605ce4042e6398cc6012ec87",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://c2e1596ff23eff4c8b31c5c0ade681186e7c944ed6d6d654851f72ecbb3a12a5",
-				"dweb:/ipfs/Qmc7QDBfzHd5MUFEX2GEdzVz6sq6JQFHvZVLfVW4GPCAFb"
+				"bzz-raw://c4cad499eed3bafd47162c941ad31001505edc53bc5cc6bfdf40f7bb39f37bb5",
+				"dweb:/ipfs/QmXhU1u9gmDVsDvwbBii7cr758shSJAhP9NWzLsByQTAD7"
 			]
 		},
 		"contracts/Oracle/PriceOracleMock.sol": {
