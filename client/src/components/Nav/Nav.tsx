@@ -44,13 +44,13 @@ const Nav = () => {
           <input
             value={search}
             onChange={handleSearch}
-            placeholder="Search contracts and accounts..."
+            placeholder="Enter contracts / accounts address..."
           />
         </form>
       </div>
       <div className={styles.GroupLink}>
         {navLinks.map((link) => (
-          <NavLink link={link} />
+          <NavLink key={link} link={link} />
         ))}
       </div>
       <div className={styles.Icon}>
