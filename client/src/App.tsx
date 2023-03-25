@@ -1,25 +1,51 @@
-// module
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// modules
 import React from 'react';
+import { useState } from 'react';
+import { Layout } from 'antd';
+import Web3 from 'web3';
 
-// pages
-import Home from './pages/Home/Home';
-import Search from './pages/Search/Search';
-import MyPage from './pages/MyPage/MyPage';
+// styles
+import { styles } from './assets/styles/styles';
 
 // components
-import Nav from './components/Nav/Nav';
+import Router from './router/Router';
+import Header from './components/Header/Header';
+import Sidebar from './components/Sidebar/Sidebar';
+
+// atoms
+import { walletState, IWalletTypes } from './atoms/Atoms';
+import { useEffect } from 'react';
+
+const { Content, Footer } = Layout;
 
 function App() {
   return (
-    <Router>
-      <Nav />
-      <Routes>
-        <Route path={'/'} element={<Home />} />
-        <Route path={'/search/:address'} element={<Search />} />
-        <Route path={'/mypage'} element={<MyPage />} />
-      </Routes>
-    </Router>
+    <Layout
+      className="layout"
+      style={{
+        height: '100%',
+        background: `linear-gradient(${styles.main_theme}, ${styles.white} )`,
+        color: `${styles.very_dark_blue_line}`,
+        gap: `${styles.space_8}`,
+      }}
+    >
+      <Header />
+      <Sidebar />
+      <Content
+        style={{
+          padding: '0 50px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: `${styles.space_9}`,
+        }}
+        className="site-layout-content"
+      >
+        <Router />
+      </Content>
+      <Footer style={{ textAlign: 'center' }}>
+        Ant Design ©2023 Created by Ant UED
+      </Footer>
+    </Layout>
   );
 }
 
