@@ -1,4 +1,4 @@
-export const theme = {
+export const styles = {
   mobile: '@media all and (max-width: 480px)',
   tablet: '@media all and (min-width:480px) and (max-width:1200px)',
   laptop: '@media all and (min-width: 1200px)',
@@ -11,6 +11,9 @@ export const theme = {
   very_dark_blue_main: 'hsl(217, 54%, 11%)',
   very_dark_blue_sub: 'hsl(216, 50%, 16%)',
   very_dark_blue_line: 'hsl(215, 32%, 27%)',
+  main_theme: 'hsl(60, 19%, 86%)',
+  main_theme_darker: 'hsl(60, 17%, 77%)',
+  main_theme_darkest: 'hsl(60, 17%, 20%)',
 
   /* Typography */
   fw_500: 500,

@@ -1,14 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { fas } from '@fortawesome/free-solid-svg-icons';
 
 import App from './App';
 
 import './index.css';
-
-library.add(fas);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -16,7 +13,9 @@ const root = ReactDOM.createRoot(
 root.render(
   // <React.StrictMode>
   <RecoilRoot>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </RecoilRoot>,
   // </React.StrictMode>,
 );

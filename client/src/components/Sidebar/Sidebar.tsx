@@ -1,46 +1,47 @@
 // modules
 import React from 'react';
-import { Layout } from 'antd';
 import { useRecoilState } from 'recoil';
-import { MetaMaskInpageProvider } from '@metamask/providers';
+
+// styles
+import { Layout, List as _List } from 'antd';
 
 // atoms
-import { collapsedState, walletState, IWalletTypes } from '../../atoms/Atoms';
+import { collapsedState, walletState } from '../../atoms/Atoms';
+
+// components
+import NotLinked from './NotLinked';
+import Linked from './Linked';
 
 const { Sider } = Layout;
 
 const Sidebar = () => {
-  const eth = window.ethereum as MetaMaskInpageProvider;
-
   const [collapsed, setCollapsed] = useRecoilState(collapsedState);
   const [wallet, setWallet] = useRecoilState(walletState);
 
-  const connWallet = async () => {
-    if (!eth) {
-      window.alert('Metamask uninstalled!');
-      return;
-    }
-
-    const accounts = await eth.request({
-      method: 'eth_requestAccounts',
-    });
-
-    const networkId = await eth.request({
-      method: 'net_version',
-    });
-
-    // const networkName = getNetworkName(networkId);
-    setWallet({
-      ...wallet,
-      address: accounts[0],
-    });
-  };
   return (
-    <Sider collapsible collapsed={collapsed} trigger={null}>
-      <p>hhhh</p>
+    <Sider
+      collapsible
+      collapsed={collapsed}
+      collapsedWidth={0}
+      defaultCollapsed={true}
+      trigger={null}
+      width={`${1200 < window.innerWidth ? '20vw' : '100%'}`}
+      style={{
+        maxWidth: '100%',
+        position: 'fixed',
+        zIndex: 500,
+        top: 64,
+        right: 0,
+        height: '100vh',
+      }}
+    >
+      {wallet.isLinked ? (
+        <Linked wallet={wallet} />
+      ) : (
+        <NotLinked wallet={wallet} setWallet={setWallet} />
+      )}
     </Sider>
   );
 };
 
-// const SidebarWrapper = styled.div``;
 export default Sidebar;
