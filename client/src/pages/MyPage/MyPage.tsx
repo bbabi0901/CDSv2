@@ -1,11 +1,30 @@
-import useMetamask from '../../utils/hooks/useMetamask';
+// modules
+import { useRecoilState } from 'recoil';
+
+// atoms
+import { walletState, IWalletTypes } from '../../atoms/Atoms';
+
+//
+import NotAuthorized from '../NotAuthorized';
+
+const Authorized: React.FC<IWalletTypes> = ({ address, network, isLinked }) => {
+  return <div>{address}</div>;
+};
 
 const MyPage = () => {
-  const isLinked = useMetamask();
+  const [wallet, setWallet] = useRecoilState<IWalletTypes>(walletState);
   return (
     <div>
       <div>MyPage</div>
-      <div>{isLinked ? 'linked' : 'not linked'}</div>
+      {wallet.isLinked ? (
+        <Authorized
+          address={wallet.address}
+          network={wallet.network}
+          isLinked={wallet.isLinked}
+        />
+      ) : (
+        <NotAuthorized />
+      )}
     </div>
   );
 };
