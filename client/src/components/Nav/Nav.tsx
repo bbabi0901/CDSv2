@@ -1,6 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useRecoilState } from 'recoil';
+
+// atoms
+import { collapsedState } from '../../atoms/Atoms';
 
 // css
 import styles from './Nav.module.css';
@@ -34,6 +38,9 @@ const Nav = () => {
 
   const navLinks = ['market', 'create', 'mypage'];
 
+  // wallet
+  const [collapsed, setCollapsed] = useRecoilState(collapsedState);
+
   return (
     <div className={styles.container}>
       <div className={styles.logo}>
@@ -53,7 +60,12 @@ const Nav = () => {
           <NavLink key={link} link={link} />
         ))}
       </div>
-      <div className={styles.Icon}>
+      <div
+        className={styles.Icon}
+        onClick={() => {
+          setCollapsed(!collapsed);
+        }}
+      >
         <Link to="/">
           <FontAwesomeIcon icon={['fas', 'wallet']} size="lg" />
         </Link>

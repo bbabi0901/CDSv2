@@ -15,9 +15,9 @@ const walletState = atom({
   },
 });
 
-const focusNavState = atom({
-  key: 'focusNavState',
-  default: '',
+const collapsedState = atom({
+  key: 'collapsedState',
+  default: true,
 });
 
-export { walletState, focusNavState };
+export { walletState, collapsedState };

@@ -13,6 +13,7 @@ const Authorized: React.FC<IWalletTypes> = ({ address, network, isLinked }) => {
 
 const MyPage = () => {
   const [wallet, setWallet] = useRecoilState<IWalletTypes>(walletState);
+
   return (
     <div>
       <div>MyPage</div>
