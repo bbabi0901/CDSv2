@@ -3,94 +3,63 @@ import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
+import { Contract } from 'web3-eth-contract';
 
 // atoms
 import { walletState, IWalletTypes } from '../../atoms/Atoms';
 
 // components
 import NotAuthorized from '../NotAuthorized';
+import CDSCard from '../../components/CDS/CDSCard';
 
-// abi
-import { cdsLoungeAbi, cdsLoungeAddress } from '../../assets/abi/cdsLounge';
-
-import { cdsAbi } from '../../assets/abi/cds';
-
-type Props = {
-  contractAddress: string;
+type MyPageProps = {
+  cdsLounge: Contract | null;
 };
-const CDSCard: React.FC<Props> = ({ contractAddress }) => {
-  const web3 = new Web3(Web3.givenProvider || 'https://localhost:8545');
-  const getDetail = async () => {
-    const cdsContract = new web3.eth.Contract(
-      cdsAbi as AbiItem[],
-      contractAddress,
-    );
-    const res = await cdsContract.methods
-      .getPrices()
-      .call({ from: '0xFEFE9A0ff55002c89F084768E9310497beF6ddB1' }); // to change
+const MyPage: React.FC<MyPageProps> = ({ cdsLounge }: MyPageProps) => {
+  const [wallet, setWallet] = useRecoilState<IWalletTypes>(walletState);
+  console.log('wallet link', wallet.isLinked);
 
-    console.log('price :', res);
-  };
-
-  useEffect(() => {
-    getDetail();
-  });
-
-  return <div>{contractAddress}</div>;
-};
-
-type WalletProps = {
-  wallet: IWalletTypes;
-};
-const Authorized: React.FC<WalletProps> = ({ wallet }) => {
   const [ownedCDS, setOwnedCDS] = useState<string[]>([]);
-  const web3 = new Web3(Web3.givenProvider || 'https://localhost:8545');
 
   const getOwenedCDS = async () => {
-    const cdsLounge = new web3.eth.Contract(
-      cdsLoungeAbi as AbiItem[],
-      cdsLoungeAddress,
-    );
-
-    const res = await cdsLounge.methods
-      .getOwnedCDS('0xFEFE9A0ff55002c89F084768E9310497beF6ddB1') // to change
-      .call({ from: wallet.address });
-    console.log('result:', res);
-    setOwnedCDS(res);
+    if (cdsLounge) {
+      const res = await cdsLounge.methods
+        .getOwnedCDS(wallet.address) // to change
+        .call({ from: wallet.address });
+      console.log('result:', res);
+      setOwnedCDS(res);
+    } else {
+      console.log('loading', cdsLounge);
+    }
   };
 
   useEffect(() => {
     getOwenedCDS();
-  }, []);
-
-  return (
-    <div>
-      <div>{wallet.address}</div>
-      <div>
-        <ul>
-          {ownedCDS.length !== 0
-            ? ownedCDS.map((cds) => {
-                return (
-                  <li key={cds}>
-                    <CDSCard contractAddress={cds} />
-                  </li>
-                );
-              })
-            : ''}
-        </ul>
-      </div>
-    </div>
-  );
-};
-
-const MyPage = () => {
-  const [wallet, setWallet] = useRecoilState<IWalletTypes>(walletState);
-  console.log('wallet link', wallet.isLinked);
+  }, [wallet]);
 
   return (
     <div>
       <div>MyPage</div>
-      {wallet.isLinked ? <Authorized wallet={wallet} /> : <NotAuthorized />}
+      {wallet.isLinked ? (
+        <div>
+          <div>{wallet.address}</div>
+          <div>
+            <ul>
+              {ownedCDS.length !== 0
+                ? ownedCDS.map((cds) => {
+                    return (
+                      <li key={cds}>
+                        <CDSCard contractAddress={cds} />
+                      </li>
+                    );
+                  })
+                : ''}
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <NotAuthorized />
+      )}
     </div>
   );
 };
