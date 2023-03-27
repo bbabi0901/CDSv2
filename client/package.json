@@ -12,7 +12,6 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.18",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
@@ -31,11 +30,11 @@
     "web3-utils": "^1.9.0"
   },
   "scripts": {
-    "start": "export PORT=3002 && react-scripts start",
-    "dev": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "export PORT=3002 && react-app-rewired start",
+    "dev": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "rreact-app-rewired eject"
   },
   "eslintConfig": {
     "extends": [
@@ -56,6 +55,7 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^18.15.10",
     "@types/styled-components": "^5.1.26",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",

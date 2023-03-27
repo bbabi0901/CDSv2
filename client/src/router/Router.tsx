@@ -18,7 +18,7 @@ import NotFound from '../pages/NotFound';
 import { cdsLoungeAbi, cdsLoungeAddress } from '../assets/abi/cdsLounge';
 
 function Router() {
-  const [web3, setWeb3] = useState<Web3 | null>();
+  const [web3, setWeb3] = useState<Web3 | null>(null);
   const [cdsLounge, setCdsLounge] = useState<Contract | null>(null);
   useEffect(() => {
     const web = new Web3(Web3.givenProvider || 'https://localhost:8545');
@@ -37,7 +37,10 @@ function Router() {
       <Route path={'/market'} element={<Market />} />
       <Route path={'/create'} element={<Create />} />
       <Route path={'/accept'} element={<Accept />} />
-      <Route path={'/mypage'} element={<MyPage cdsLounge={cdsLounge} />} />
+      <Route
+        path={'/mypage'}
+        element={<MyPage web3={web3} cdsLounge={cdsLounge} />}
+      />
       <Route path={'/*'} element={<NotFound />} />
     </Routes>
   );
