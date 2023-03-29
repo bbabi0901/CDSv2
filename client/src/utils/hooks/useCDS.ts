@@ -4,7 +4,9 @@ import { AbiItem } from 'web3-utils';
 import { Contract } from 'web3-eth-contract';
 
 // abi
-import { cdsAbi } from '../../assets/abi/cds';
+import { cdsAbi } from '../abi/cds';
+
+// address 입력하면 contract를 포함한 객체와 setter 반환하는 훅
 
 export default class CDS {
   private contract: Contract = new Contract([], '');

@@ -15,7 +15,7 @@ import MyPage from '../pages/MyPage/MyPage';
 import NotFound from '../pages/NotFound';
 
 // abi
-import { cdsLoungeAbi, cdsLoungeAddress } from '../assets/abi/cdsLounge';
+import { cdsLoungeAbi, cdsLoungeAddress } from '../utils/abi/cdsLounge';
 
 function Router() {
   const [web3, setWeb3] = useState<Web3 | null>(null);

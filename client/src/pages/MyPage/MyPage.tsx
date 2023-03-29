@@ -13,7 +13,7 @@ import NotAuthorized from '../NotAuthorized';
 import CDSCard from '../../components/CDS/CDSCard';
 
 // abi
-import { cdsAbi } from '../../assets/abi/cds';
+import { cdsAbi } from '../../utils/abi/cds';
 
 type MyPageProps = {
   web3: Web3 | null;
