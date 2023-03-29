@@ -1,8 +1,6 @@
 // modules
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Layout } from 'antd';
-import Web3 from 'web3';
 
 // styles
 import { styles } from './assets/styles/styles';
@@ -11,10 +9,6 @@ import { styles } from './assets/styles/styles';
 import Router from './router/Router';
 import Header from './components/Header/Header';
 import Sidebar from './components/Sidebar/Sidebar';
-
-// atoms
-import { walletState, IWalletTypes } from './atoms/Atoms';
-import { useEffect } from 'react';
 
 const { Content, Footer } = Layout;
 

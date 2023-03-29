@@ -527,11 +527,11 @@
 			]
 		},
 		"contracts/CDS/CDS.sol": {
-			"keccak256": "0xef7b2795bad0f6efd1360d5206e4b47513b6f48963ef540435f2bfd2e2bb6ea2",
+			"keccak256": "0x43f1811b87dbf537a9c994e77f5ea68e4ea32d549a87027430acb8a60f75217a",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://cc95700fe52fd9c8819d194e6af9fd4c18aff4b39a67a0bfec3887d17a2f579b",
-				"dweb:/ipfs/QmX1pL52CHN7BB4531E2BYWNssDPPRPC6AesnqbV5wBeuR"
+				"bzz-raw://f3801ecab023c55b99be0fad629caa18bb937a182ce7062a14b032a22d0b7c01",
+				"dweb:/ipfs/Qmbcs1FeHsPp12kKowBcSNKMWHhsBpNDw95t3DArKEJydn"
 			]
 		},
 		"contracts/CDS/PriceConsumer.sol": {

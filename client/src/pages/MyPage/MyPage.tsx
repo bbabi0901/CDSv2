@@ -1,30 +1,92 @@
 // modules
+import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
+import { Contract } from 'web3-eth-contract';
 
 // atoms
 import { walletState, IWalletTypes } from '../../atoms/Atoms';
 
-//
+// components
 import NotAuthorized from '../NotAuthorized';
+import CDSCard from '../../components/CDS/CDSCard';
 
-const Authorized = ({ wallet }: { wallet: IWalletTypes }) => {
-  const web3 = new Web3(Web3.givenProvider || 'https://localhost:8545');
+// abi
+import { cdsAbi } from '../../utils/abi/cds';
+
+type MyPageProps = {
+  web3: Web3 | null;
+  cdsLounge: Contract | null;
+};
+type DetailProps = {
+  address: string;
+  prices: string[];
+};
+const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
+  const [wallet, setWallet] = useRecoilState<IWalletTypes>(walletState);
+
+  const [ownedCDS, setOwnedCDS] = useState<string[]>([]);
+  const [cdsDetails, setCdsDetails] = useState<DetailProps[]>([]);
 
   const getOwenedCDS = async () => {
-    // const cdsLounge = await web3.eth.Contract();
-  };
-  return <div>{wallet.address}</div>;
-};
+    if (cdsLounge && web3) {
+      const res = await cdsLounge.methods
+        .getOwnedCDS(wallet.address) // to change
+        .call({ from: wallet.address });
+      setOwnedCDS(res);
 
-const MyPage = () => {
-  const [wallet, setWallet] = useRecoilState<IWalletTypes>(walletState);
-  console.log('wallet link', wallet.isLinked);
+      for (let i = 0; i < res.length; i++) {
+        const cds = new web3.eth.Contract(cdsAbi as AbiItem[], res[i]);
+        const prices = await cds.methods
+          .getPrices()
+          .call({ from: wallet.address });
+        const detail = {
+          address: res[i],
+          prices: prices,
+        };
+        setCdsDetails((prev) => {
+          return prev.concat(detail);
+        });
+      }
+    }
+  };
+
+  // card에 또 필요한거 assetType.
+  // assetType에 따라 card image 다르게
+  // 카드 클릭하면 search/{address} 로 이동
+  // cds 관련 hook 있으면 좋을듯
+
+  useEffect(() => {
+    getOwenedCDS();
+  }, [wallet]);
 
   return (
     <div>
       <div>MyPage</div>
-      {wallet.isLinked ? <Authorized wallet={wallet} /> : <NotAuthorized />}
+      {wallet.isLinked ? (
+        <div>
+          <div>{wallet.address}</div>
+          <div>
+            <ul>
+              {cdsDetails.length !== 0
+                ? cdsDetails.map((detail) => {
+                    return (
+                      <li key={`${detail.address}${detail.prices[0]}`}>
+                        <CDSCard
+                          address={detail.address}
+                          prices={detail.prices}
+                        />
+                      </li>
+                    );
+                  })
+                : ''}
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <NotAuthorized />
+      )}
     </div>
   );
 };
