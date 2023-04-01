@@ -4,14 +4,17 @@ pragma solidity ^0.8.7;
 import '../Oracle/PriceOracleMock.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
-
 contract PriceConsumer {
   using SafeMath for uint256;
 
   PriceOracleMock private priceOracle;
 
-  constructor(address _address) {
-    priceOracle = PriceOracleMock(_address);
+  // constructor(address _address) {
+  //   priceOracle = PriceOracleMock(_address);
+  // }
+
+  function setOracle(address _oracle) internal {
+    priceOracle = PriceOracleMock(_oracle);
   }
 
   function getCurrPrice(uint32 _assetType) public view returns (uint256) {

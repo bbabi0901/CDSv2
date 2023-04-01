@@ -11,6 +11,12 @@ contract CDSFactory {
   mapping(uint256 => CDS) private _cdsList;
   mapping(address => address[]) private ownedCDS;
 
+  address public oracle;
+
+  function setOracle(address _oracle) external {
+    oracle = _oracle;
+  }
+
   function _create(
     bool _isBuyer,
     uint256 _initAssetPrice,
@@ -25,6 +31,7 @@ contract CDSFactory {
     uint256 newCDSId = _cdsId.current();
 
     CDS newCDS = new CDS(
+      oracle,
       _initAssetPrice,
       _claimPrice,
       _liquidationPrice,

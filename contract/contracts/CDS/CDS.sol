@@ -6,13 +6,10 @@ import '../libs/LibSwap.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
 // PriceConsumberGoerli({assetType})
-contract CDS is
-  Ownable,
-  PriceConsumer(0x2ABDf4a7aD585EffCc16b61643e058130b1311b8)
-{
+contract CDS is Ownable, PriceConsumer {
   using LibSwap for uint256;
 
-  PriceOracleMock private priceOracle;
+  // PriceOracleMock private priceOracle;
 
   enum Status {
     inactive,
@@ -36,6 +33,7 @@ contract CDS is
   uint32 public assetType;
 
   constructor(
+    address _oracle,
     uint256 _initAssetPrice,
     uint256 _claimPrice,
     uint256 _liquidationPrice,
@@ -44,6 +42,8 @@ contract CDS is
     uint32 _rounds,
     uint32 _assetType
   ) {
+    setOracle(_oracle);
+
     initAssetPrice = _initAssetPrice;
     claimPrice = _claimPrice;
     liquidationPrice = _liquidationPrice;
@@ -182,7 +182,6 @@ contract CDS is
         currPrice
       );
   }
-
 
   // modifiers
 

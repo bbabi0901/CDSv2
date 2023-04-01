@@ -12,11 +12,11 @@ contract CDSBank is CDSFactory {
 
   mapping(uint256 => uint256[2]) public deposits;
 
-  constructor() {
-    token = IERC20(0x44F818644e6BbC02E58C81B550d80611857233b5);
-  }
-
   // transactions
+
+  function setToken(address _address) external {
+    token = IERC20(_address);
+  }
 
   function _sendDeposit(uint256 _cdsId, bool _isBuyer) internal returns (bool) {
     uint256 deposit;
