@@ -43,7 +43,7 @@ const deployCDSLounge = async () => {
   return cdsLounge;
 };
 
-describe('Setter', async () => {
+describe('Initial Settings', async () => {
   /*
   const create = async (contract, address, data) => {
     const tx = await contract
@@ -77,7 +77,7 @@ describe('Setter', async () => {
   // contracts
   let oracle, token, cdsLounge;
 
-  // set accounts, deploy contracts
+  // set accounts balance, deploy contracts
   before(async () => {
     const [owner, addr1, addr2] = await ethers.getSigners();
     admin = owner;
@@ -85,14 +85,39 @@ describe('Setter', async () => {
     seller = addr2;
 
     console.log(`
-    Admin  : ${admin.address}
-    Buyer  : ${buyer.address}
-    Seller : ${seller.address}
+    Accounts
+    -----------------------------------------------------------
+    Admin  Addr : ${admin.address}
+    Buyer  Addr : ${buyer.address}
+    Seller Addr : ${seller.address}
     `);
 
     oracle = await deployOracle();
     token = await deployToken();
     cdsLounge = await deployCDSLounge();
+
+    console.log(`
+    Contracts
+    -----------------------------------------------------------
+    Oracle      : ${oracle.address}
+    Token       : ${token.address}
+    CDS Lounge  : ${cdsLounge.address}
+    `);
+
+    await token.transfer(buyer.address, DEFAULT_FAUCET);
+    await token.transfer(seller.address, DEFAULT_FAUCET);
+
+    // 주소 넣어야 하면 account object에서 address만
+    // msg.sender를 바꿔야하면 connect(account object)
+    // ex) await token.connect(buyer).transfer(seller.address, DEFAULT_FAUCET / 10);
+  });
+
+  it('Faucet check', async () => {
+    let bal = await token.balanceOf(buyer.address);
+    expect(+bal).to.equal(DEFAULT_FAUCET);
+
+    bal = await token.balanceOf(seller.address);
+    expect(+bal).to.equal(DEFAULT_FAUCET);
   });
 
   it('Setting Token contract', async () => {
@@ -102,21 +127,6 @@ describe('Setter', async () => {
     expect(tokenContract).to.equal(token.address);
   });
 
-  it('Token test', async () => {
-    await token.transfer(buyer.address, DEFAULT_FAUCET);
-    await token.transfer(seller.address, DEFAULT_FAUCET);
-
-    let bal = await token.balanceOf(buyer.address);
-    console.log(+bal);
-    bal = await token.balanceOf(seller.address);
-    console.log(+bal);
-
-    await token.connect(buyer).transfer(seller.address, DEFAULT_FAUCET / 10);
-    bal = await token.balanceOf(seller.address);
-    console.log(+bal);
-  });
-
-  /*
   it('Setting Oracle contract', async () => {
     // lounge
     const { cdsLounge, addr1 } = await loadFixture(deployCDSLoungeFixture);
@@ -161,7 +171,6 @@ describe('Setter', async () => {
     // let res = decodeEvent(EVENT_TYPES.CREATE, receipt);
     // console.log(res);
   });
-  */
 
   /*
   it('should throw error if priceOracle is not set', async () => {
