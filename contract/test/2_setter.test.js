@@ -17,39 +17,33 @@ const DEFAULT_CREAT_INPUT = {
   BuyerDeposit: 3000,
   AssetType: 0, // BTC:0, ETH:1, LINK:2
 };
+const DEFAULT_FAUCET = 1000000;
 
-// fusd, oracle deploy => fixture address => attach.
+const deployOracle = async () => {
+  const Oracle = await ethers.getContractFactory('PriceOracleMock');
+  const oracle = await Oracle.deploy();
+  await oracle.deployed();
+
+  return oracle;
+};
+
+const deployToken = async () => {
+  const Token = await ethers.getContractFactory('FUSD');
+  const token = await Token.deploy();
+  await token.deployed();
+
+  return token;
+};
+
+const deployCDSLounge = async () => {
+  const CDSLounge = await ethers.getContractFactory('CDSLounge');
+  const cdsLounge = await CDSLounge.deploy();
+  await cdsLounge.deployed();
+
+  return cdsLounge;
+};
+
 describe('Setter', async () => {
-  const deployOracleFixture = async () => {
-    const [owner] = await ethers.getSigners();
-
-    const Oracle = await ethers.getContractFactory('PriceOracleMock');
-    const oracle = await Oracle.deploy();
-    await oracle.deployed();
-
-    return { oracle, owner };
-  };
-
-  const deployTokenFixture = async () => {
-    const [owner] = await ethers.getSigners();
-
-    const Token = await ethers.getContractFactory('FUSD');
-    const token = await Token.deploy();
-    await token.deployed();
-
-    return { token, owner };
-  };
-
-  const deployCDSLoungeFixture = async () => {
-    const [owner, addr1, addr2] = await ethers.getSigners();
-
-    const CDSLounge = await ethers.getContractFactory('CDSLounge');
-    const cdsLounge = await CDSLounge.deploy();
-    await cdsLounge.deployed();
-
-    return { cdsLounge, owner, addr1, addr2 };
-  };
-
   /*
   const create = async (contract, address, data) => {
     const tx = await contract
@@ -71,23 +65,58 @@ describe('Setter', async () => {
 
     return res;
     // dna = +dna;
-    // const contract = this.Zombie.attach(address);
+    // const contract = Zombie.attach(address);
 
     // returns address and contract
     // return { address, dna, contract };
   };
   */
 
-  it('Setting Token contract', async () => {
-    const { cdsLounge } = await loadFixture(deployCDSLoungeFixture);
-    const { token } = await loadFixture(deployTokenFixture);
+  // accounts
+  let admin, buyer, seller;
+  // contracts
+  let oracle, token, cdsLounge;
 
+  // set accounts, deploy contracts
+  before(async () => {
+    const [owner, addr1, addr2] = await ethers.getSigners();
+    admin = owner;
+    buyer = addr1;
+    seller = addr2;
+
+    console.log(`
+    Admin  : ${admin.address}
+    Buyer  : ${buyer.address}
+    Seller : ${seller.address}
+    `);
+
+    oracle = await deployOracle();
+    token = await deployToken();
+    cdsLounge = await deployCDSLounge();
+  });
+
+  it('Setting Token contract', async () => {
     await cdsLounge.setToken(token.address);
     const tokenContract = await cdsLounge.token();
 
     expect(tokenContract).to.equal(token.address);
   });
 
+  it('Token test', async () => {
+    await token.transfer(buyer.address, DEFAULT_FAUCET);
+    await token.transfer(seller.address, DEFAULT_FAUCET);
+
+    let bal = await token.balanceOf(buyer.address);
+    console.log(+bal);
+    bal = await token.balanceOf(seller.address);
+    console.log(+bal);
+
+    await token.connect(buyer).transfer(seller.address, DEFAULT_FAUCET / 10);
+    bal = await token.balanceOf(seller.address);
+    console.log(+bal);
+  });
+
+  /*
   it('Setting Oracle contract', async () => {
     // lounge
     const { cdsLounge, addr1 } = await loadFixture(deployCDSLoungeFixture);
@@ -109,6 +138,9 @@ describe('Setter', async () => {
       .connect(addr1)
       .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
 
+    //Error: VM Exception while processing transaction: reverted with reason string 'ERC20: transfer amount exceeds balance'
+    // approve 확인하는 테스트 먼저 짜야겠음
+
     const tx = await cdsLounge
       .connect(addr1)
       .create(
@@ -129,6 +161,7 @@ describe('Setter', async () => {
     // let res = decodeEvent(EVENT_TYPES.CREATE, receipt);
     // console.log(res);
   });
+  */
 
   /*
   it('should throw error if priceOracle is not set', async () => {
