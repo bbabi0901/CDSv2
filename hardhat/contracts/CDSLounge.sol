@@ -3,6 +3,7 @@ pragma solidity ^0.8.7;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './Handler/CDSBank.sol';
+import 'hardhat/console.sol';
 
 interface CDSInterface {
   function create(
@@ -60,7 +61,8 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
     uint32 totalRounds,
     uint32 assetType
   ) external override returns (uint256) {
-    // _sendDeposit(premium, sellerDeposit, isBuyer);
+    console.log('Creating CDS contract');
+
     uint256 newCDSId = _create(
       isBuyer,
       initAssetPrice,
@@ -92,7 +94,7 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
       'The host can not call the method'
     );
 
-    bool isSeller = (getSeller(_cdsId) == address(0)); // true when seller is accepting 
+    bool isSeller = (getSeller(_cdsId) == address(0)); // true when seller is accepting
     _accept(isSeller, _initAssetPrice, _cdsId);
 
     _sendDeposit(_cdsId, !isSeller); // false when seller is accepting
@@ -159,7 +161,7 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
 // cdsLounge는 allowance from cds contract
 // 정산도 각 cds 안에서하고 cdsLounge는 수수료 취급.
 
-// pending list => 서버 없이 보여줄 수 있고, offer도 가능. 
+// pending list => 서버 없이 보여줄 수 있고, offer도 가능.
 // 아니면 currId까지 클라이언트에서 반복문 돌려서 확인해서 가져온다?
 
 // 블록체인에서 기록하려면 배열.

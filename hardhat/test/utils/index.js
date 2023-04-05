@@ -7,7 +7,9 @@ module.exports = {
     LINK: 750000000,
   },
 
-  EVENT_TYPES_CREATE: ['address', 'uint'],
+  EVENT_TYPES: {
+    CREATE: ['address', 'bool', 'uint256', 'uint32', 'address'],
+  },
 
   hash: (data) => {
     return ethers.utils.keccak256(data);

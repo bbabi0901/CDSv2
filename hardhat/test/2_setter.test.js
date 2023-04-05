@@ -4,10 +4,7 @@ const { ethers } = require('hardhat');
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { INIT_PRICE } = require('./utils');
-// const INIT_BTC_PRICE = 2500000000000;
-// const INIT_ETH_PRICE = 160000000000;
-// const INIT_LINK_PRICE = 750000000;
+const { INIT_PRICE, EVENT_TYPES, decodeEvent } = require('./utils');
 
 const DEFAULT_CREAT_INPUT = {
   HostSetting: true,
@@ -17,7 +14,7 @@ const DEFAULT_CREAT_INPUT = {
   SellerDeposit: 50000,
   Premium: 750,
   PremiumRounds: 12, // total lifecycle of test cds is 2hrs
-  BuyerDeposit: Premium * (3 + 1),
+  BuyerDeposit: this.Premium * (3 + 1),
   AssetType: 0, // BTC:0, ETH:1, LINK:2
 };
 
@@ -53,17 +50,30 @@ describe('Setter', async () => {
     return { cdsLounge, owner, addr1, addr2 };
   };
 
-  const create = async (contract, data) => {
-    const tx = await contract.create();
+  const create = async (contract, address, data) => {
+    const tx = await contract
+      .connect(address)
+      .create(
+        data.HostSetting,
+        data.InitAssetPrice,
+        data.ClaimPrice,
+        data.LiquidationPrice,
+        data.SellerDeposit,
+        data.Premium,
+        data.PremiumRounds,
+        data.AssetType,
+      );
 
     const receipt = await tx.wait();
 
-    let [address, dna] = decodeEvent(EVENT_TYPES_CREATE, receipt);
-    dna = +dna;
-    const contract = this.Zombie.attach(address);
+    let res = decodeEvent(EVENT_TYPES.CREATE, receipt);
+
+    return res;
+    // dna = +dna;
+    // const contract = this.Zombie.attach(address);
 
     // returns address and contract
-    return { address, dna, contract };
+    // return { address, dna, contract };
   };
 
   it('Setting Token contract', async () => {
@@ -87,28 +97,8 @@ describe('Setter', async () => {
     expect(oracleAddress).to.equal(oracle.address);
 
     // cds instance
-    const defaultHostSetting = true;
-    const defaultInitAssetPrice = 25000;
-    const defaultClaimPrice = 21250;
-    const defaultLiquidationPrice = 20000;
-    const defaultSellerDeposit = 50000;
-    const defaultPremium = 750;
-    const defaultPremiumRounds = 12; // total lifecycle of test cds is 2hrs
-    const defaultBuyerDeposit = defaultPremium * (3 + 1);
-    const defaultAssetType = 0; // BTC:0, ETH:1, LINK:2
-
-    await cdsLounge
-      .connect(addr1)
-      .create(
-        defaultHostSetting,
-        defaultInitAssetPrice,
-        defaultClaimPrice,
-        defaultLiquidationPrice,
-        defaultSellerDeposit,
-        defaultPremium,
-        defaultPremiumRounds,
-        defaultAssetType,
-      );
+    const res = await create(cdsLounge, addr1, DEFAULT_CREAT_INPUT);
+    console.log(res);
   });
 
   /*

@@ -12,5 +12,8 @@
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/test-helpers": "^0.5.16",
     "hardhat": "^2.13.0"
+  },
+  "dependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8"
   }
 }
