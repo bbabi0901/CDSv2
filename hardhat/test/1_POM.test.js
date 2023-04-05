@@ -2,12 +2,9 @@ const { expect } = require('chai');
 const { ethers } = require('hardhat');
 
 const { expectRevert } = require('@openzeppelin/test-helpers');
+const { INIT_PRICE } = require('./utils');
 
-const INIT_BTC_PRICE = 2500000000000;
-const INIT_ETH_PRICE = 160000000000;
-const INIT_LINK_PRICE = 750000000;
-
-describe('oracleMock', async () => {
+describe('Mocking Oracle', async () => {
   let oracle, currPrice, modifiedPrice;
 
   before(async () => {
@@ -17,20 +14,20 @@ describe('oracleMock', async () => {
   });
 
   after(async () => {
-    await oracle.setBTCPrice(INIT_BTC_PRICE);
-    await oracle.setETHPrice(INIT_ETH_PRICE);
-    await oracle.setLinkPrice(INIT_LINK_PRICE);
+    await oracle.setBTCPrice(INIT_PRICE.BTC);
+    await oracle.setETHPrice(INIT_PRICE.ETH);
+    await oracle.setLinkPrice(INIT_PRICE.LINK);
   });
 
   it('should have proper initial value', async () => {
     currPrice = await oracle.btcPrice();
-    expect(INIT_BTC_PRICE).to.equal(currPrice.toNumber());
+    expect(INIT_PRICE.BTC).to.equal(currPrice.toNumber());
 
     currPrice = await oracle.ethPrice();
-    expect(INIT_ETH_PRICE).to.equal(currPrice.toNumber());
+    expect(INIT_PRICE.ETH).to.equal(currPrice.toNumber());
 
     currPrice = await oracle.linkPrice();
-    expect(INIT_LINK_PRICE).to.equal(currPrice.toNumber());
+    expect(INIT_PRICE.LINK).to.equal(currPrice.toNumber());
   });
 
   it('should have proper changed value', async () => {
