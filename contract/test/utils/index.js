@@ -19,7 +19,7 @@ module.exports = {
     return ethers.utils.defaultAbiCoder.encode(dataTypes, data);
   },
 
-  decodeEvent: (types, receipt) => {
-    return ethers.utils.defaultAbiCoder.decode(types, receipt.events[0].data);
+  decode: (types, data) => {
+    return ethers.utils.defaultAbiCoder.decode(types, data);
   },
 };

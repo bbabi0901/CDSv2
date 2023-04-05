@@ -4,7 +4,7 @@ const { ethers } = require('hardhat');
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { INIT_PRICE, EVENT_TYPES, decodeEvent } = require('./utils');
+const { INIT_PRICE, EVENT_TYPES, decode } = require('./utils');
 
 const DEFAULT_CREAT_INPUT = {
   HostSetting: true,
@@ -43,7 +43,7 @@ const deployCDSLounge = async () => {
   return cdsLounge;
 };
 
-describe('Initial Settings', async () => {
+describe('CDS Lounge', async () => {
   /*
   const create = async (contract, address, data) => {
     const tx = await contract
@@ -75,7 +75,7 @@ describe('Initial Settings', async () => {
   // accounts
   let admin, buyer, seller;
   // contracts
-  let oracle, token, cdsLounge;
+  let oracle, token, cdsLounge, CDS;
 
   // set accounts balance, deploy contracts
   before(async () => {
@@ -110,66 +110,62 @@ describe('Initial Settings', async () => {
     // 주소 넣어야 하면 account object에서 address만
     // msg.sender를 바꿔야하면 connect(account object)
     // ex) await token.connect(buyer).transfer(seller.address, DEFAULT_FAUCET / 10);
+
+    CDS = await ethers.getContractFactory('CDS');
   });
 
-  it('Faucet check', async () => {
-    let bal = await token.balanceOf(buyer.address);
-    expect(+bal).to.equal(DEFAULT_FAUCET);
+  describe('Initial Settings Test', async () => {
+    it('Faucet check', async () => {
+      let bal = await token.balanceOf(buyer.address);
+      expect(+bal).to.equal(DEFAULT_FAUCET);
 
-    bal = await token.balanceOf(seller.address);
-    expect(+bal).to.equal(DEFAULT_FAUCET);
-  });
+      bal = await token.balanceOf(seller.address);
+      expect(+bal).to.equal(DEFAULT_FAUCET);
+    });
 
-  it('Setting Token contract', async () => {
-    await cdsLounge.setToken(token.address);
-    const tokenContract = await cdsLounge.token();
+    it('Setting Token contract', async () => {
+      await cdsLounge.setToken(token.address);
+      const tokenContract = await cdsLounge.token();
 
-    expect(tokenContract).to.equal(token.address);
-  });
+      expect(tokenContract).to.equal(token.address);
+    });
 
-  it('Setting Oracle contract', async () => {
-    // lounge
-    const { cdsLounge, addr1 } = await loadFixture(deployCDSLoungeFixture);
-    const { oracle } = await loadFixture(deployOracleFixture);
+    it('Setting Oracle contract', async () => {
+      // checking oracle of cds lounge
+      await cdsLounge.setOracle(oracle.address);
+      const oracleAddress = await cdsLounge.oracle();
 
-    await cdsLounge.setOracle(oracle.address);
-    const oracleAddress = await cdsLounge.oracle();
+      expect(oracleAddress).to.equal(oracle.address);
 
-    expect(oracleAddress).to.equal(oracle.address);
+      // cds instance
+      // set Token 안하면 Error: Transaction reverted: function returned an unexpected amount of data 발생
+      await cdsLounge.setToken(token.address);
 
-    // cds instance
-    const { token } = await loadFixture(deployTokenFixture);
-    await cdsLounge.setToken(token.address);
-    // set Token 안하면 Error: Transaction reverted: function returned an unexpected amount of data 발생
+      await token
+        .connect(buyer)
+        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
 
-    // const res = await create(cdsLounge, addr1, DEFAULT_CREAT_INPUT);
-    // console.log(res);
-    await token
-      .connect(addr1)
-      .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+      const tx = await cdsLounge
+        .connect(buyer)
+        .create(
+          DEFAULT_CREAT_INPUT.HostSetting,
+          DEFAULT_CREAT_INPUT.InitAssetPrice,
+          DEFAULT_CREAT_INPUT.ClaimPrice,
+          DEFAULT_CREAT_INPUT.LiquidationPrice,
+          DEFAULT_CREAT_INPUT.SellerDeposit,
+          DEFAULT_CREAT_INPUT.Premium,
+          DEFAULT_CREAT_INPUT.PremiumRounds,
+          DEFAULT_CREAT_INPUT.AssetType,
+        );
 
-    //Error: VM Exception while processing transaction: reverted with reason string 'ERC20: transfer amount exceeds balance'
-    // approve 확인하는 테스트 먼저 짜야겠음
+      const receipt = await tx.wait();
 
-    const tx = await cdsLounge
-      .connect(addr1)
-      .create(
-        DEFAULT_CREAT_INPUT.HostSetting,
-        DEFAULT_CREAT_INPUT.InitAssetPrice,
-        DEFAULT_CREAT_INPUT.ClaimPrice,
-        DEFAULT_CREAT_INPUT.LiquidationPrice,
-        DEFAULT_CREAT_INPUT.SellerDeposit,
-        DEFAULT_CREAT_INPUT.Premium,
-        DEFAULT_CREAT_INPUT.PremiumRounds,
-        DEFAULT_CREAT_INPUT.AssetType,
-      );
+      const { swap: cdsAddr } = receipt.events[3].args;
+      const cds = CDS.attach(cdsAddr);
 
-    // const receipt = await tx.wait();
-
-    // console.log(receipt);
-
-    // let res = decodeEvent(EVENT_TYPES.CREATE, receipt);
-    // console.log(res);
+      const oracleAddr = await cds.priceOracle();
+      expect(oracleAddr).to.equal(oracle.address);
+    });
   });
 
   /*

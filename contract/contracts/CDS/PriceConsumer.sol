@@ -7,7 +7,7 @@ import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 contract PriceConsumer {
   using SafeMath for uint256;
 
-  PriceOracleMock private priceOracle;
+  PriceOracleMock public priceOracle;
 
   // constructor(address _address) {
   //   priceOracle = PriceOracleMock(_address);
