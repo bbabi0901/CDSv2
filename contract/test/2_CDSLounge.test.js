@@ -205,6 +205,24 @@ describe('CDS Lounge', async () => {
           ),
       ).to.emit(cdsLounge, 'Create');
     });
+    const create = async () => {
+      await token
+        .connect(buyer)
+        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+
+      await cdsLounge
+        .connect(buyer)
+        .create(
+          DEFAULT_CREAT_INPUT.HostSetting,
+          DEFAULT_CREAT_INPUT.InitAssetPrice,
+          DEFAULT_CREAT_INPUT.ClaimPrice,
+          DEFAULT_CREAT_INPUT.LiquidationPrice,
+          DEFAULT_CREAT_INPUT.SellerDeposit,
+          DEFAULT_CREAT_INPUT.Premium,
+          DEFAULT_CREAT_INPUT.PremiumRounds,
+          DEFAULT_CREAT_INPUT.AssetType,
+        );
+    };
     /*
     it('should be able to create CDS as BUYER when valid input approved and check it from mapping', async () => {
       await fusd.approve(cds.address, defaultBuyerDeposit, {
