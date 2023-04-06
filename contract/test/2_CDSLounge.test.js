@@ -119,19 +119,19 @@ describe('CDS Lounge', async () => {
       const tx = await cdsLounge
         .connect(buyer)
         .create(
-          DEFAULT_CREAT_INPUT.HostSetting,
           DEFAULT_CREAT_INPUT.InitAssetPrice,
           DEFAULT_CREAT_INPUT.ClaimPrice,
           DEFAULT_CREAT_INPUT.LiquidationPrice,
           DEFAULT_CREAT_INPUT.SellerDeposit,
           DEFAULT_CREAT_INPUT.Premium,
+          seller.address,
           DEFAULT_CREAT_INPUT.PremiumRounds,
           DEFAULT_CREAT_INPUT.AssetType,
         );
 
       const receipt = await tx.wait();
 
-      const { swap: cdsAddr } = receipt.events[3].args;
+      const { cds: cdsAddr } = receipt.events[3].args;
       const cds = CDS.attach(cdsAddr);
 
       const oracleAddr = await cds.priceOracle();
@@ -150,12 +150,12 @@ describe('CDS Lounge', async () => {
         cdsLounge
           .connect(buyer)
           .create(
-            DEFAULT_CREAT_INPUT.HostSetting,
             DEFAULT_CREAT_INPUT.InitAssetPrice,
             DEFAULT_CREAT_INPUT.ClaimPrice,
             DEFAULT_CREAT_INPUT.LiquidationPrice,
             DEFAULT_CREAT_INPUT.SellerDeposit,
             DEFAULT_CREAT_INPUT.Premium,
+            seller.address,
             DEFAULT_CREAT_INPUT.PremiumRounds,
             DEFAULT_CREAT_INPUT.AssetType,
           ),
@@ -173,12 +173,12 @@ describe('CDS Lounge', async () => {
         cdsLounge
           .connect(buyer)
           .create(
-            DEFAULT_CREAT_INPUT.HostSetting,
             DEFAULT_CREAT_INPUT.InitAssetPrice,
             DEFAULT_CREAT_INPUT.ClaimPrice,
             DEFAULT_CREAT_INPUT.LiquidationPrice,
             DEFAULT_CREAT_INPUT.SellerDeposit,
             DEFAULT_CREAT_INPUT.Premium,
+            seller.address,
             DEFAULT_CREAT_INPUT.PremiumRounds,
             INVALID_ASSET_TYPE,
           ),
@@ -194,12 +194,12 @@ describe('CDS Lounge', async () => {
         cdsLounge
           .connect(buyer)
           .create(
-            DEFAULT_CREAT_INPUT.HostSetting,
             DEFAULT_CREAT_INPUT.InitAssetPrice,
             DEFAULT_CREAT_INPUT.ClaimPrice,
             DEFAULT_CREAT_INPUT.LiquidationPrice,
             DEFAULT_CREAT_INPUT.SellerDeposit,
             DEFAULT_CREAT_INPUT.Premium,
+            seller.address,
             DEFAULT_CREAT_INPUT.PremiumRounds,
             DEFAULT_CREAT_INPUT.AssetType,
           ),
@@ -213,12 +213,12 @@ describe('CDS Lounge', async () => {
       await cdsLounge
         .connect(buyer)
         .create(
-          DEFAULT_CREAT_INPUT.HostSetting,
           DEFAULT_CREAT_INPUT.InitAssetPrice,
           DEFAULT_CREAT_INPUT.ClaimPrice,
           DEFAULT_CREAT_INPUT.LiquidationPrice,
           DEFAULT_CREAT_INPUT.SellerDeposit,
           DEFAULT_CREAT_INPUT.Premium,
+          seller.address,
           DEFAULT_CREAT_INPUT.PremiumRounds,
           DEFAULT_CREAT_INPUT.AssetType,
         );
