@@ -6,7 +6,6 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { INIT_PRICE, EVENT_TYPES, REVERT, EVENT, decode } = require('./utils');
 
 const DEFAULT_CREAT_INPUT = {
-  HostSetting: true,
   InitAssetPrice: 25000,
   ClaimPrice: 21250,
   LiquidationPrice: 20000,
@@ -44,16 +43,17 @@ const deployCDSLounge = async () => {
 
 describe('CDS Lounge', async () => {
   // accounts
-  let admin, buyer, seller;
+  let admin, buyer, seller, unauthorized;
   // contracts
   let oracle, token, cdsLounge, CDS;
 
   // set accounts balance, deploy contracts
   before(async () => {
-    const [owner, addr1, addr2] = await ethers.getSigners();
+    const [owner, addr1, addr2, addr3] = await ethers.getSigners();
     admin = owner;
     buyer = addr1;
     seller = addr2;
+    unauthorized = addr3;
 
     console.log(`
     Accounts
@@ -145,6 +145,32 @@ describe('CDS Lounge', async () => {
       await cdsLounge.setOracle(oracle.address);
     });
 
+    const create = async () => {
+      const txA = await token
+        .connect(buyer)
+        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+
+      const tx = await cdsLounge
+        .connect(buyer)
+        .create(
+          DEFAULT_CREAT_INPUT.InitAssetPrice,
+          DEFAULT_CREAT_INPUT.ClaimPrice,
+          DEFAULT_CREAT_INPUT.LiquidationPrice,
+          DEFAULT_CREAT_INPUT.SellerDeposit,
+          DEFAULT_CREAT_INPUT.Premium,
+          seller.address,
+          DEFAULT_CREAT_INPUT.PremiumRounds,
+          DEFAULT_CREAT_INPUT.AssetType,
+        );
+
+      const receipt = await tx.wait();
+
+      const { cds: cdsAddr } = receipt.events[3].args;
+      const cds = CDS.attach(cdsAddr);
+
+      return { cds, cdsAddr };
+    };
+
     it('should be reverted when allowance is insufficient.', async () => {
       await expect(
         cdsLounge
@@ -205,24 +231,43 @@ describe('CDS Lounge', async () => {
           ),
       ).to.emit(cdsLounge, 'Create');
     });
-    const create = async () => {
-      await token
-        .connect(buyer)
-        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
 
-      await cdsLounge
-        .connect(buyer)
-        .create(
-          DEFAULT_CREAT_INPUT.InitAssetPrice,
-          DEFAULT_CREAT_INPUT.ClaimPrice,
-          DEFAULT_CREAT_INPUT.LiquidationPrice,
-          DEFAULT_CREAT_INPUT.SellerDeposit,
-          DEFAULT_CREAT_INPUT.Premium,
-          seller.address,
-          DEFAULT_CREAT_INPUT.PremiumRounds,
-          DEFAULT_CREAT_INPUT.AssetType,
-        );
-    };
+    it('CDS contract should have proper state', async () => {
+      const { cds, cdsAddr } = await create();
+
+      const sellerAddress = await cds.getSeller();
+      expect(sellerAddress).to.equal(seller.address);
+
+      let prices = (await cds.getPrices()).map((bn) => +bn);
+
+      const defaultPrices = [
+        DEFAULT_CREAT_INPUT.InitAssetPrice,
+        DEFAULT_CREAT_INPUT.ClaimPrice,
+        DEFAULT_CREAT_INPUT.LiquidationPrice,
+        DEFAULT_CREAT_INPUT.Premium,
+        DEFAULT_CREAT_INPUT.SellerDeposit,
+      ];
+
+      for (let i = 0; i < prices.length; i++) {
+        expect(prices[i]).to.equal(defaultPrices[i]);
+      }
+
+      const status = await cds.status();
+      expect(status).to.equal(1);
+
+      const totalRounds = await cds.totalRounds();
+      expect(totalRounds).to.equal(DEFAULT_CREAT_INPUT.PremiumRounds);
+
+      const assetType = await cds.assetType();
+      expect(assetType).to.equal(DEFAULT_CREAT_INPUT.AssetType);
+
+      console.log(`
+      Selelr Address : ${sellerAddress}
+      Status         : ${status}
+      Total Rounds   : ${totalRounds}
+      Asset Type     : ${assetType}
+      `);
+    });
     /*
     it('should be able to create CDS as BUYER when valid input approved and check it from mapping', async () => {
       await fusd.approve(cds.address, defaultBuyerDeposit, {
