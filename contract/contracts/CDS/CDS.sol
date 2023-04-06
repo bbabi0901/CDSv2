@@ -71,13 +71,13 @@ contract CDS is Ownable, PriceConsumer {
     setRounds(rounds - 1);
   }
 
-  function accept(
-    uint256 _initAssetPrice,
-    address msgSender,
-    bool _isBuyerHost // true when seller is accepting
-  ) external onlyOwner isPending {
-    setInitAssetPrice(_initAssetPrice);
-    setParticipants(msgSender, !_isBuyerHost);
+  // original input args
+  // uint256 _initAssetPrice,
+  // address msgSender,
+  // bool _isBuyerHost // true when seller is accepting
+  function accept() external onlyOwner isPending {
+    // setInitAssetPrice(_initAssetPrice);
+    // setParticipants(msgSender, !_isBuyerHost);
     setStatus(CDS.Status.active);
     nextPayDate = block.timestamp + 4 weeks;
     rounds -= 1;
@@ -119,12 +119,12 @@ contract CDS is Ownable, PriceConsumer {
     return status;
   }
 
-  function setParticipants(
-    address _participants,
-    bool _isBuyer
-  ) public onlyOwner {
-    _isBuyer ? setBuyer(_participants) : setSeller(_participants);
-  }
+  // function setParticipants(
+  //   address _participants,
+  //   bool _isBuyer
+  // ) public onlyOwner {
+  //   _isBuyer ? setBuyer(_participants) : setSeller(_participants);
+  // }
 
   function setBuyer(address _buyer) public onlyOwner returns (address) {
     buyer = _buyer;

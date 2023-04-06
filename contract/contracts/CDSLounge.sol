@@ -8,20 +8,17 @@ import './Handler/CDSBank.sol';
 
 interface CDSInterface {
   function create(
-    bool isBuyer,
     uint256 initAssetPrice,
     uint256 claimPrice,
     uint256 liquidationPrice,
     uint256 sellerDeposit,
     uint256 premium,
+    address seller,
     uint32 totalRounds,
     uint32 assetType
   ) external returns (uint256);
 
-  function accept(
-    uint256 initAssetPrice,
-    uint256 cdsId
-  ) external returns (uint256);
+  function accept(uint256 cdsId) external returns (uint256);
 
   function cancel(uint256 cdsId) external returns (bool);
 
@@ -35,14 +32,8 @@ interface CDSInterface {
 
   function payPremiumByDeposit(uint256 cdsId) external returns (bool);
 
-  event Create(
-    address indexed hostAddr,
-    bool isBuyer,
-    uint256 cdsId,
-    uint32 assetType,
-    address swap
-  );
-  event Accept(address indexed guestAddr, uint256 cdsId);
+  event Create(uint256 cdsId, address cds);
+  event Accept(uint256 cdsId);
   event Cancel(uint256 cdsId);
   event Claim(uint256 cdsId, uint256 claimReward);
   event Close(uint256 cdsId);
@@ -53,55 +44,43 @@ interface CDSInterface {
 contract CDSLounge is CDSBank, Ownable, CDSInterface {
   // transactions
   function create(
-    bool isBuyer,
     uint256 initAssetPrice,
     uint256 claimPrice,
     uint256 liquidationPrice,
     uint256 sellerDeposit,
     uint256 premium,
+    address seller,
     uint32 totalRounds,
     uint32 assetType
   ) external override returns (uint256) {
     // console.log('Creating CDS contract by', msg.sender);
 
     uint256 newCDSId = _create(
-      isBuyer,
       initAssetPrice,
       claimPrice,
       liquidationPrice,
       sellerDeposit,
       premium,
+      seller,
       totalRounds,
       assetType
     );
-    _sendDeposit(newCDSId, isBuyer);
+    _sendDeposit(newCDSId, true);
 
-    emit Create(
-      msg.sender,
-      isBuyer,
-      newCDSId,
-      assetType,
-      address(getCDS(newCDSId))
-    );
+    emit Create(newCDSId, address(getCDS(newCDSId)));
     return newCDSId;
   }
 
-  function accept(
-    uint256 _initAssetPrice,
-    uint256 _cdsId
-  ) external override returns (uint256) {
-    require(
-      msg.sender != getBuyer(_cdsId) && msg.sender != getSeller(_cdsId),
-      'The host can not call the method'
-    );
+  function accept(uint256 _cdsId) external override returns (uint256) {
+    require(msg.sender != getSeller(_cdsId), 'Unauthorized address');
 
-    bool isSeller = (getSeller(_cdsId) == address(0)); // true when seller is accepting
-    _accept(isSeller, _initAssetPrice, _cdsId);
+    // bool isSeller = (getSeller(_cdsId) == address(0)); // true when seller is accepting
+    _accept(_cdsId);
 
-    _sendDeposit(_cdsId, !isSeller); // false when seller is accepting
+    _sendDeposit(_cdsId, false); // false when seller is accepting
     _sendFirstPremium(_cdsId);
 
-    emit Accept(msg.sender, _cdsId);
+    emit Accept(_cdsId);
     return _cdsId;
   }
 

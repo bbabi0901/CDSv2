@@ -20,12 +20,12 @@ contract CDSFactory {
   }
 
   function _create(
-    bool _isBuyer,
     uint256 _initAssetPrice,
     uint256 _claimPrice,
     uint256 _liquidationPrice,
     uint256 _sellerDeposit,
     uint256 _premium,
+    address _seller,
     uint32 _totalRounds,
     uint32 _assetType
   ) internal returns (uint256) {
@@ -45,18 +45,21 @@ contract CDSFactory {
       _assetType
     );
     _cdsList[newCDSId] = newCDS;
-    newCDS.setParticipants(msg.sender, _isBuyer);
+    // newCDS.setParticipants(msg.sender, _isBuyer);
+    newCDS.setBuyer(msg.sender);
+    newCDS.setSeller(_seller);
     return newCDSId;
   }
 
   function _accept(
-    bool _isBuyerHost, // true when seller is accepting
-    uint256 _initAssetPrice,
+    // bool _isBuyerHost, // true when seller is accepting
+    // uint256 _initAssetPrice,
     uint256 _targetCDSId
   ) internal {
     CDS targetCDS = _cdsList[_targetCDSId];
 
-    targetCDS.accept(_initAssetPrice, msg.sender, _isBuyerHost);
+    // targetCDS.accept(_initAssetPrice, msg.sender, _isBuyerHost);
+    targetCDS.accept();
 
     ownedCDS[targetCDS.getBuyer()].push(address(targetCDS));
     ownedCDS[targetCDS.getSeller()].push(address(targetCDS));
