@@ -1,10 +1,9 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 
-const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { INIT_PRICE, EVENT_TYPES, decode } = require('./utils');
+const { INIT_PRICE, EVENT_TYPES, REVERT, EVENT, decode } = require('./utils');
 
 const DEFAULT_CREAT_INPUT = {
   HostSetting: true,
@@ -44,34 +43,6 @@ const deployCDSLounge = async () => {
 };
 
 describe('CDS Lounge', async () => {
-  /*
-  const create = async (contract, address, data) => {
-    const tx = await contract
-      .connect(address)
-      .create(
-        data.HostSetting,
-        data.InitAssetPrice,
-        data.ClaimPrice,
-        data.LiquidationPrice,
-        data.SellerDeposit,
-        data.Premium,
-        data.PremiumRounds,
-        data.AssetType,
-      );
-
-    const receipt = await tx.wait();
-
-    let res = decodeEvent(EVENT_TYPES.CREATE, receipt);
-
-    return res;
-    // dna = +dna;
-    // const contract = Zombie.attach(address);
-
-    // returns address and contract
-    // return { address, dna, contract };
-  };
-  */
-
   // accounts
   let admin, buyer, seller;
   // contracts
@@ -169,55 +140,72 @@ describe('CDS Lounge', async () => {
   });
 
   describe('Create', () => {
-    it('should throw error when invalid input', async () => {
-      await truffleAssert.fails(
-        cds.create(true, 20000, 21250, 20000, 50000, -750, 60 * 10, 12, 0, {
-          from: accounts[2],
-        }),
-      );
-      await truffleAssert.fails(
-        cds.create(true, 20000, 21250, 20000, 100000, 750, 60 * 10, -12, 0, {
-          from: accounts[2],
-        }),
-      );
+    before(async () => {
+      await cdsLounge.setToken(token.address);
+      await cdsLounge.setOracle(oracle.address);
     });
 
-    it('should throw error when invalid deposit approved', async () => {
-      await fusd.approve(cds.address, defaultBuyerDeposit - 1, {
-        from: accounts[2],
-      });
-      await truffleAssert.fails(
-        cds.create(
-          defaultHostSetting,
-          defaultInitAssetPrice,
-          defaultClaimPrice,
-          defaultLiquidationPrice,
-          defaultSellerDeposit,
-          defaultPremium,
-          defaultPremiumRounds,
-          defaultAssetType,
-          { from: accounts[2] },
-        ),
-      );
-
-      await fusd.approve(cds.address, defaultBuyerDeposit, {
-        from: accounts[1],
-      });
-      await truffleAssert.fails(
-        cds.create(
-          !defaultHostSetting,
-          defaultInitAssetPrice,
-          defaultClaimPrice,
-          defaultLiquidationPrice,
-          defaultSellerDeposit,
-          defaultPremium,
-          defaultPremiumRounds,
-          defaultAssetType,
-          { from: accounts[1] },
-        ),
-      );
+    it('should be reverted when allowance is insufficient.', async () => {
+      await expect(
+        cdsLounge
+          .connect(buyer)
+          .create(
+            DEFAULT_CREAT_INPUT.HostSetting,
+            DEFAULT_CREAT_INPUT.InitAssetPrice,
+            DEFAULT_CREAT_INPUT.ClaimPrice,
+            DEFAULT_CREAT_INPUT.LiquidationPrice,
+            DEFAULT_CREAT_INPUT.SellerDeposit,
+            DEFAULT_CREAT_INPUT.Premium,
+            DEFAULT_CREAT_INPUT.PremiumRounds,
+            DEFAULT_CREAT_INPUT.AssetType,
+          ),
+      ).to.be.revertedWith(REVERT.INSUFFICIENT_ALLOWANCE);
     });
 
+    it('should be reverted when asset type is invalid', async () => {
+      const INVALID_ASSET_TYPE = 3;
+
+      await token
+        .connect(buyer)
+        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+
+      await expect(
+        cdsLounge
+          .connect(buyer)
+          .create(
+            DEFAULT_CREAT_INPUT.HostSetting,
+            DEFAULT_CREAT_INPUT.InitAssetPrice,
+            DEFAULT_CREAT_INPUT.ClaimPrice,
+            DEFAULT_CREAT_INPUT.LiquidationPrice,
+            DEFAULT_CREAT_INPUT.SellerDeposit,
+            DEFAULT_CREAT_INPUT.Premium,
+            DEFAULT_CREAT_INPUT.PremiumRounds,
+            INVALID_ASSET_TYPE,
+          ),
+      ).to.be.revertedWith(REVERT.INVALID_ASSET_TYPE);
+    });
+
+    it('should emit event "Create" after proper transaction', async () => {
+      await token
+        .connect(buyer)
+        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+
+      await expect(
+        cdsLounge
+          .connect(buyer)
+          .create(
+            DEFAULT_CREAT_INPUT.HostSetting,
+            DEFAULT_CREAT_INPUT.InitAssetPrice,
+            DEFAULT_CREAT_INPUT.ClaimPrice,
+            DEFAULT_CREAT_INPUT.LiquidationPrice,
+            DEFAULT_CREAT_INPUT.SellerDeposit,
+            DEFAULT_CREAT_INPUT.Premium,
+            DEFAULT_CREAT_INPUT.PremiumRounds,
+            DEFAULT_CREAT_INPUT.AssetType,
+          ),
+      ).to.emit(cdsLounge, 'Create');
+    });
+    /*
     it('should be able to create CDS as BUYER when valid input approved and check it from mapping', async () => {
       await fusd.approve(cds.address, defaultBuyerDeposit, {
         from: accounts[2],
@@ -273,6 +261,7 @@ describe('CDS Lounge', async () => {
       await assert.strictEqual(defaultPremiumRounds, +totalRounds);
     });
 
+    
     it('should be able to create CDS as SELLER when valid input provided and check it from mapping', async () => {
       await fusd.approve(cds.address, defaultSellerDeposit, {
         from: accounts[1],
@@ -391,5 +380,6 @@ describe('CDS Lounge', async () => {
       );
       await assert.strictEqual(+beforeCA + defaultSellerDeposit, +afterCA);
     });
+    */
   });
 });

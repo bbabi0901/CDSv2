@@ -11,11 +11,16 @@ module.exports = {
     CREATE: ['address', 'bool', 'uint256', 'uint32', 'address'],
   },
 
+  REVERT: {
+    INSUFFICIENT_ALLOWANCE: 'ERC20: insufficient allowance',
+    INVALID_ASSET_TYPE: 'BTC:0, ETH:1, LINK:2',
+  },
+  EVENT: {},
   hash: (data) => {
     return ethers.utils.keccak256(data);
   },
 
-  encodeParams: (dataTypes, data) => {
+  encode: (dataTypes, data) => {
     return ethers.utils.defaultAbiCoder.encode(dataTypes, data);
   },
 
