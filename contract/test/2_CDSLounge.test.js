@@ -47,6 +47,32 @@ describe('CDS Lounge', async () => {
   // contracts
   let oracle, token, cdsLounge, CDS;
 
+  const create = async () => {
+    const txA = await token
+      .connect(buyer)
+      .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+
+    const tx = await cdsLounge
+      .connect(buyer)
+      .create(
+        DEFAULT_CREAT_INPUT.InitAssetPrice,
+        DEFAULT_CREAT_INPUT.ClaimPrice,
+        DEFAULT_CREAT_INPUT.LiquidationPrice,
+        DEFAULT_CREAT_INPUT.SellerDeposit,
+        DEFAULT_CREAT_INPUT.Premium,
+        seller.address,
+        DEFAULT_CREAT_INPUT.PremiumRounds,
+        DEFAULT_CREAT_INPUT.AssetType,
+      );
+
+    const receipt = await tx.wait();
+
+    const { cds: cdsAddr } = receipt.events[3].args;
+    const cds = CDS.attach(cdsAddr);
+
+    return { cds, cdsAddr };
+  };
+
   // set accounts balance, deploy contracts
   before(async () => {
     const [owner, addr1, addr2, addr3] = await ethers.getSigners();
@@ -66,6 +92,7 @@ describe('CDS Lounge', async () => {
     oracle = await deployOracle();
     token = await deployToken();
     cdsLounge = await deployCDSLounge();
+    CDS = await ethers.getContractFactory('CDS');
 
     console.log(`
     Contracts
@@ -75,14 +102,13 @@ describe('CDS Lounge', async () => {
     CDS Lounge  : ${cdsLounge.address}
     `);
 
+    // setting contract
+    await cdsLounge.setToken(token.address);
+    await cdsLounge.setOracle(oracle.address);
+
+    // faucet
     await token.transfer(buyer.address, DEFAULT_FAUCET);
     await token.transfer(seller.address, DEFAULT_FAUCET);
-
-    // 주소 넣어야 하면 account object에서 address만
-    // msg.sender를 바꿔야하면 connect(account object)
-    // ex) await token.connect(buyer).transfer(seller.address, DEFAULT_FAUCET / 10);
-
-    CDS = await ethers.getContractFactory('CDS');
   });
 
   describe('Initial Settings Test', async () => {
@@ -94,16 +120,14 @@ describe('CDS Lounge', async () => {
       expect(+bal).to.equal(DEFAULT_FAUCET);
     });
 
-    it('Setting Token contract', async () => {
-      await cdsLounge.setToken(token.address);
+    it('Checking Token contract', async () => {
       const tokenContract = await cdsLounge.token();
 
       expect(tokenContract).to.equal(token.address);
     });
 
-    it('Setting Oracle contract', async () => {
+    it('Checking Oracle contract', async () => {
       // checking oracle of cds lounge
-      await cdsLounge.setOracle(oracle.address);
       const oracleAddress = await cdsLounge.oracle();
 
       expect(oracleAddress).to.equal(oracle.address);
@@ -140,37 +164,6 @@ describe('CDS Lounge', async () => {
   });
 
   describe('Create', () => {
-    before(async () => {
-      await cdsLounge.setToken(token.address);
-      await cdsLounge.setOracle(oracle.address);
-    });
-
-    const create = async () => {
-      const txA = await token
-        .connect(buyer)
-        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
-
-      const tx = await cdsLounge
-        .connect(buyer)
-        .create(
-          DEFAULT_CREAT_INPUT.InitAssetPrice,
-          DEFAULT_CREAT_INPUT.ClaimPrice,
-          DEFAULT_CREAT_INPUT.LiquidationPrice,
-          DEFAULT_CREAT_INPUT.SellerDeposit,
-          DEFAULT_CREAT_INPUT.Premium,
-          seller.address,
-          DEFAULT_CREAT_INPUT.PremiumRounds,
-          DEFAULT_CREAT_INPUT.AssetType,
-        );
-
-      const receipt = await tx.wait();
-
-      const { cds: cdsAddr } = receipt.events[3].args;
-      const cds = CDS.attach(cdsAddr);
-
-      return { cds, cdsAddr };
-    };
-
     it('should be reverted when allowance is insufficient.', async () => {
       await expect(
         cdsLounge
@@ -283,5 +276,16 @@ describe('CDS Lounge', async () => {
         'Contract balance',
       );
     });
+  });
+
+  describe('Accept', () => {
+    // create before each case
+    beforeEach(async () => {});
+
+    it('Checking seller', async () => {});
+    it('Checking allowance', async () => {});
+    it('Checking event', async () => {});
+    it('Checking state of CDS after accept', async () => {});
+    it('Checking balance after accept', async () => {});
   });
 });
