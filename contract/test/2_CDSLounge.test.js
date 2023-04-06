@@ -235,6 +235,9 @@ describe('CDS Lounge', async () => {
     it('CDS contract should have proper state', async () => {
       const { cds, cdsAddr } = await create();
 
+      const buyerAddress = await cds.getBuyer();
+      expect(buyerAddress).to.equal(buyer.address);
+
       const sellerAddress = await cds.getSeller();
       expect(sellerAddress).to.equal(seller.address);
 
@@ -260,189 +263,25 @@ describe('CDS Lounge', async () => {
 
       const assetType = await cds.assetType();
       expect(assetType).to.equal(DEFAULT_CREAT_INPUT.AssetType);
-
-      console.log(`
-      Selelr Address : ${sellerAddress}
-      Status         : ${status}
-      Total Rounds   : ${totalRounds}
-      Asset Type     : ${assetType}
-      `);
-    });
-    /*
-    it('should be able to create CDS as BUYER when valid input approved and check it from mapping', async () => {
-      await fusd.approve(cds.address, defaultBuyerDeposit, {
-        from: accounts[2],
-      });
-      await truffleAssert.passes(
-        await cds.create(
-          defaultHostSetting,
-          defaultInitAssetPrice,
-          defaultClaimPrice,
-          defaultLiquidationPrice,
-          defaultSellerDeposit,
-          defaultPremium,
-          defaultPremiumRounds,
-          defaultAssetType,
-          { from: accounts[2] },
-        ),
-      );
-      const [currentCDSId] = await cds.getCDSId();
-      const buyer = await cds.getBuyer(currentCDSId);
-      const seller = await cds.getSeller(currentCDSId);
-      const buyerDepositDetail = await cds.deposits(currentCDSId, 0);
-      const sellerDepositDetail = await cds.deposits(currentCDSId, 1);
-
-      const cdsAddr = await cds.getCDS(currentCDSId);
-      const targetCDS = await Contract.at(cdsAddr);
-
-      const totalRounds = await targetCDS.rounds();
-      const CDSPrices = await targetCDS.getPrices();
-
-      const [
-        initAssetPrice,
-        claimPrice,
-        liquidationPrice,
-        premium,
-        sellerDeposit,
-      ] = CDSPrices;
-
-      await assert.strictEqual(defaultInitAssetPrice, +initAssetPrice);
-      await assert.strictEqual(defaultClaimPrice, +claimPrice);
-      await assert.strictEqual(defaultLiquidationPrice, +liquidationPrice);
-      await assert.strictEqual(defaultSellerDeposit, +sellerDeposit);
-      await assert.strictEqual(defaultPremium, +premium);
-
-      await assert.strictEqual(buyer, accounts[2]);
-      await assert.strictEqual(+buyerDepositDetail, defaultBuyerDeposit);
-
-      await assert.strictEqual(
-        seller,
-        '0x0000000000000000000000000000000000000000',
-      );
-      await assert.strictEqual(+sellerDepositDetail, 0);
-
-      await assert.strictEqual(defaultPremiumRounds, +totalRounds);
     });
 
-    
-    it('should be able to create CDS as SELLER when valid input provided and check it from mapping', async () => {
-      await fusd.approve(cds.address, defaultSellerDeposit, {
-        from: accounts[1],
-      });
-      await truffleAssert.passes(
-        cds.create(
-          !defaultHostSetting,
-          defaultInitAssetPrice,
-          defaultClaimPrice,
-          defaultLiquidationPrice,
-          defaultSellerDeposit,
-          defaultPremium,
-          defaultPremiumRounds,
-          defaultAssetType,
-          { from: accounts[1] },
-        ),
+    it('Buyer and Contract should have proper token balance after creating CDS', async () => {
+      const buyerBalanceBefore = await token.balanceOf(buyer.address);
+      const contractBalanceBefore = await token.balanceOf(cdsLounge.address);
+
+      await create();
+
+      const buyerBalanceAfter = await token.balanceOf(buyer.address);
+      const contractBalanceAfter = await token.balanceOf(cdsLounge.address);
+
+      expect(+buyerBalanceAfter).to.equal(
+        +buyerBalanceBefore - DEFAULT_CREAT_INPUT.BuyerDeposit,
+        'Buyer balance',
       );
-      const [currentCDSId] = await cds.getCDSId();
-      const buyer = await cds.getBuyer(currentCDSId);
-      const seller = await cds.getSeller(currentCDSId);
-      const buyerDepositDetail = await cds.deposits(currentCDSId, 0);
-      const sellerDepositDetail = await cds.deposits(currentCDSId, 1);
-
-      const cdsAddr = await cds.getCDS(currentCDSId);
-      const targetCDS = await Contract.at(cdsAddr);
-
-      const totalRounds = await targetCDS.rounds();
-      const CDSPrices = await targetCDS.getPrices();
-      const [
-        initAssetPrice,
-        claimPrice,
-        liquidationPrice,
-        premium,
-        sellerDeposit,
-      ] = CDSPrices;
-
-      await assert.strictEqual(defaultInitAssetPrice, +initAssetPrice);
-      await assert.strictEqual(defaultClaimPrice, +claimPrice);
-      await assert.strictEqual(defaultLiquidationPrice, +liquidationPrice);
-      await assert.strictEqual(defaultSellerDeposit, +sellerDeposit);
-      await assert.strictEqual(defaultPremium, +premium);
-
-      await assert.strictEqual(seller, accounts[1]);
-      await assert.strictEqual(+sellerDepositDetail, defaultSellerDeposit);
-      await assert.strictEqual(
-        buyer,
-        '0x0000000000000000000000000000000000000000',
+      expect(+contractBalanceAfter).to.equal(
+        +contractBalanceBefore + DEFAULT_CREAT_INPUT.BuyerDeposit,
+        'Contract balance',
       );
-      await assert.strictEqual(+buyerDepositDetail, 0);
-
-      await assert.strictEqual(defaultPremiumRounds, +totalRounds);
     });
-
-    it('should have decreased TOKEN amount of buyer after creating CDS as BUYER', async () => {
-      const before = await fusd.balanceOf(accounts[2]);
-      const beforeCA = await fusd.balanceOf(cds.address);
-      await fusd.approve(cds.address, defaultBuyerDeposit, {
-        from: accounts[2],
-      });
-      await cds.create(
-        defaultHostSetting,
-        defaultInitAssetPrice,
-        defaultClaimPrice,
-        defaultLiquidationPrice,
-        defaultSellerDeposit,
-        defaultPremium,
-        defaultPremiumRounds,
-        defaultAssetType,
-        { from: accounts[2] },
-      );
-      const after = await fusd.balanceOf(accounts[2]);
-      const afterCA = await fusd.balanceOf(cds.address);
-
-      assert.isBelow(
-        +after,
-        +before,
-        'After Balance should be lower than Before',
-      );
-      assert.equal(
-        +before,
-        +after + defaultBuyerDeposit,
-        'Sum of gas cost, msg.value, after balance should be equal to Before Balance',
-      );
-      await assert.strictEqual(+beforeCA + defaultBuyerDeposit, +afterCA);
-    });
-
-    it('should have decreased TOKEN amount of seller after creating CDS as SELLER', async () => {
-      const before = await fusd.balanceOf(accounts[1]);
-      const beforeCA = await fusd.balanceOf(cds.address);
-      await fusd.approve(cds.address, defaultSellerDeposit, {
-        from: accounts[1],
-      });
-      await cds.create(
-        !defaultHostSetting,
-        defaultInitAssetPrice,
-        defaultClaimPrice,
-        defaultLiquidationPrice,
-        defaultSellerDeposit,
-        defaultPremium,
-        defaultPremiumRounds,
-        defaultAssetType,
-        { from: accounts[1] },
-      );
-      const after = await fusd.balanceOf(accounts[1]);
-      const afterCA = await fusd.balanceOf(cds.address);
-
-      assert.isBelow(
-        +after,
-        +before,
-        'After Balance should be lower than Before',
-      );
-      assert.equal(
-        +before,
-        +after + defaultSellerDeposit,
-        'Sum of gas cost, msg.value, after balance should be equal to Before Balance',
-      );
-      await assert.strictEqual(+beforeCA + defaultSellerDeposit, +afterCA);
-    });
-    */
   });
 });
