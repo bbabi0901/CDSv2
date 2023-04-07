@@ -411,12 +411,20 @@ describe('CDS Lounge', async () => {
       targetCDSAddr = cdsAddr;
     });
 
+    it('Checking status before calling CANCEL', async () => {
+      await accept(targetId);
+      await expect(
+        cdsLounge.connect(buyer).cancel(targetId),
+      ).to.be.rejectedWith(REVERT.NOT_PENDING);
+    });
+
     it('Checking caller', async () => {
       // only buyer or seller can call
       await expect(
         cdsLounge.connect(unauthorized).cancel(targetId),
       ).to.be.rejectedWith(REVERT.UNAUTHORIZED_PARTICIPANTS);
     });
+
     it('Checking state of CDS after CANCEL', async () => {
       // Cancel by buyer
       await expect(cdsLounge.connect(buyer).cancel(targetId)).to.emit(
@@ -475,10 +483,78 @@ describe('CDS Lounge', async () => {
       targetCDSAddr = cdsAddr;
     });
 
-    it('Checking status', async () => {});
-    it('Checking authority', async () => {});
-    it('Checking state of CDS after CLOSE', async () => {});
-    it('Checking balance after CLOSE', async () => {});
-    it('Checking deposit in CDSBank', async () => {});
+    it('Checking status before calling CLOSE', async () => {
+      await expect(cdsLounge.connect(buyer).close(targetId)).to.be.rejectedWith(
+        REVERT.NOT_ACTIVE,
+      );
+    });
+
+    it('Checking authority', async () => {
+      await accept(targetId);
+      await expect(
+        cdsLounge.connect(unauthorized).close(targetId),
+      ).to.be.revertedWith(REVERT.UNAUTHORIZED_BUYER);
+
+      await expect(
+        cdsLounge.connect(seller).close(targetId),
+      ).to.be.revertedWith(REVERT.UNAUTHORIZED_BUYER);
+    });
+
+    it('Checking state of CDS after CLOSE', async () => {
+      await accept(targetId);
+      await expect(cdsLounge.connect(buyer).close(targetId)).to.emit(
+        cdsLounge,
+        'Close',
+      );
+
+      const status = await targetCDS.status();
+      expect(status).to.equal(4); // 4 : expired
+    });
+
+    it('Checking balance after CLOSE', async () => {
+      await accept(targetId);
+
+      const beforeClose = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        seller: +(await token.balanceOf(seller.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      await cdsLounge.connect(buyer).close(targetId);
+
+      const afterClose = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        seller: +(await token.balanceOf(seller.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      expect(afterClose.buyer).to.equal(
+        beforeClose.buyer + DEFAULT_STATE.BuyerDeposit - DEFAULT_STATE.Premium,
+        'buyer',
+      );
+
+      expect(afterClose.seller).to.equal(
+        beforeClose.seller + DEFAULT_STATE.SellerDeposit,
+        'seller',
+      );
+
+      expect(afterClose.cdsLounge).to.equal(
+        beforeClose.cdsLounge -
+          (DEFAULT_STATE.BuyerDeposit - DEFAULT_STATE.Premium) -
+          DEFAULT_STATE.SellerDeposit,
+        'cdsLounge',
+      );
+    });
+
+    it('Checking deposit in CDSBank', async () => {
+      await accept(targetId);
+      await cdsLounge.connect(buyer).close(targetId);
+
+      const buyerDeposit = +(await cdsLounge.deposits(targetId, 0));
+      expect(buyerDeposit).to.equal(0);
+
+      const sellerDeposit = +(await cdsLounge.deposits(targetId, 1));
+      expect(sellerDeposit).to.equal(0);
+    });
   });
 });
