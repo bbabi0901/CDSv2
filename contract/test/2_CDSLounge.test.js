@@ -72,6 +72,19 @@ describe('CDS Lounge', async () => {
     return { cds, id, cdsAddr };
   };
 
+  const accept = async (id) => {
+    await token
+      .connect(seller)
+      .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.SellerDeposit);
+
+    const tx = await cdsLounge.connect(seller).accept(id);
+
+    const receipt = await tx.wait();
+    const { cdsId } = receipt.events[3].args;
+
+    return cdsId;
+  };
+
   // set accounts balance, deploy contracts
   before(async () => {
     const [owner, addr1, addr2, addr3] = await ethers.getSigners();
@@ -167,7 +180,7 @@ describe('CDS Lounge', async () => {
   });
 
   describe('Create', () => {
-    it('should be reverted when allowance is insufficient.', async () => {
+    it('Checking token allowance', async () => {
       await expect(
         cdsLounge
           .connect(buyer)
@@ -292,14 +305,14 @@ describe('CDS Lounge', async () => {
       targetCDSAddr = cdsAddr;
     });
 
-    it('Checking allowance', async () => {
+    it('Checking token allowance', async () => {
       await expect(
         cdsLounge.connect(seller).accept(targetId),
       ).to.be.revertedWith(REVERT.INSUFFICIENT_ALLOWANCE);
     });
 
-    it('Checking seller', async () => {
-      const tx = await token
+    it('Checking seller address', async () => {
+      await token
         .connect(unauthorized)
         .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.SellerDeposit);
 
@@ -308,8 +321,22 @@ describe('CDS Lounge', async () => {
       ).to.be.revertedWith(REVERT.UNAUTHORIZED_SELLER);
     });
 
-    it('Checking event', async () => {});
-    it('Checking state of CDS after accept', async () => {});
+    it('should emit event "Accept" after proper transaction', async () => {
+      await token
+        .connect(seller)
+        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.SellerDeposit);
+
+      await expect(cdsLounge.connect(seller).accept(targetId)).to.emit(
+        cdsLounge,
+        'Accept',
+      );
+    });
+
+    it('Checking state of CDS after accept', async () => {
+      const acceptId = await accept(targetId);
+
+      // acceptId => getCDS => CDS => state check
+    });
     it('Checking balance after accept', async () => {});
   });
 });
