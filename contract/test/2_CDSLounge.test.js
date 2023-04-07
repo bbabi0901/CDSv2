@@ -422,7 +422,7 @@ describe('CDS Lounge', async () => {
       // only buyer or seller can call
       await expect(
         cdsLounge.connect(unauthorized).cancel(targetId),
-      ).to.be.rejectedWith(REVERT.UNAUTHORIZED_PARTICIPANTS);
+      ).to.be.rejectedWith(REVERT.NOT_PARTICIPANTS);
     });
 
     it('Checking state of CDS after CANCEL', async () => {
@@ -493,11 +493,11 @@ describe('CDS Lounge', async () => {
       await accept(targetId);
       await expect(
         cdsLounge.connect(unauthorized).close(targetId),
-      ).to.be.revertedWith(REVERT.UNAUTHORIZED_BUYER);
+      ).to.be.revertedWith(REVERT.NOT_BUYER);
 
       await expect(
         cdsLounge.connect(seller).close(targetId),
-      ).to.be.revertedWith(REVERT.UNAUTHORIZED_BUYER);
+      ).to.be.revertedWith(REVERT.NOT_BUYER);
     });
 
     it('Checking state of CDS after CLOSE', async () => {
@@ -550,6 +550,184 @@ describe('CDS Lounge', async () => {
       await accept(targetId);
       await cdsLounge.connect(buyer).close(targetId);
 
+      const buyerDeposit = +(await cdsLounge.deposits(targetId, 0));
+      expect(buyerDeposit).to.equal(0);
+
+      const sellerDeposit = +(await cdsLounge.deposits(targetId, 1));
+      expect(sellerDeposit).to.equal(0);
+    });
+  });
+
+  describe('Claim', async () => {
+    let targetCDS, targetId, targetCDSAddr;
+
+    beforeEach(async () => {
+      const { cds, id, cdsAddr } = await create();
+      targetCDS = cds;
+      targetId = +id;
+      targetCDSAddr = cdsAddr;
+
+      await accept(targetId);
+    });
+
+    it('Checking status', async () => {
+      const { id } = await create();
+
+      await expect(cdsLounge.connect(buyer).claim(id)).to.be.revertedWith(
+        REVERT.NOT_ACTIVE,
+      );
+    });
+
+    it('Checking authority', async () => {
+      await expect(
+        cdsLounge.connect(seller).claim(targetId),
+      ).to.be.revertedWith(REVERT.NOT_BUYER);
+
+      await expect(
+        cdsLounge.connect(unauthorized).claim(targetId),
+      ).to.be.revertedWith(REVERT.NOT_BUYER);
+    });
+
+    // claim when currPrice is above claimPrice
+    it('Checking when current price of the asset is above the claim price', async () => {
+      const currPrice = 2200000000000;
+      await oracle.setBTCPrice(currPrice);
+
+      await expect(cdsLounge.connect(buyer).claim(targetId)).to.be.revertedWith(
+        REVERT.NOT_CLAIMABLE,
+      );
+    });
+
+    // claim when currPrice is btwn claimPrice~liquidationPrice => 21000, claimReward should be 40000
+    it('Checking when current price of the asset is below claim price', async () => {
+      const currPrice = 2100000000000;
+
+      const numOfAssets =
+        DEFAULT_STATE.SellerDeposit /
+        (DEFAULT_STATE.InitAssetPrice - DEFAULT_STATE.LiquidationPrice);
+
+      const claimReward =
+        numOfAssets * (DEFAULT_STATE.InitAssetPrice - currPrice / 1e8);
+
+      await oracle.setBTCPrice(currPrice);
+
+      const beforeClaim = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        seller: +(await token.balanceOf(seller.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      // claimReward
+      const claimRewardCDS = await targetCDS.getClaimReward();
+      expect(claimReward).to.equal(claimRewardCDS, 'claim reward');
+
+      // event
+      await expect(cdsLounge.connect(buyer).claim(targetId)).to.emit(
+        cdsLounge,
+        'Claim',
+      );
+
+      // state of cds
+      const status = await targetCDS.status();
+      expect(status).to.equal(3, 'status'); // 3 : claimed
+
+      // balance
+      const afterClaim = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        seller: +(await token.balanceOf(seller.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      expect(afterClaim.buyer).to.equal(
+        beforeClaim.buyer +
+          DEFAULT_STATE.BuyerDeposit -
+          DEFAULT_STATE.Premium +
+          +claimRewardCDS,
+        'buyer',
+      );
+
+      expect(afterClaim.seller).to.equal(
+        beforeClaim.seller + DEFAULT_STATE.SellerDeposit - +claimRewardCDS,
+        'seller',
+      );
+
+      expect(afterClaim.cdsLounge).to.equal(
+        beforeClaim.cdsLounge -
+          (DEFAULT_STATE.BuyerDeposit - DEFAULT_STATE.Premium) -
+          DEFAULT_STATE.SellerDeposit,
+        'cdsLounge',
+      );
+
+      // deposit
+      const buyerDeposit = +(await cdsLounge.deposits(targetId, 0));
+      expect(buyerDeposit).to.equal(0);
+
+      const sellerDeposit = +(await cdsLounge.deposits(targetId, 1));
+      expect(sellerDeposit).to.equal(0);
+    });
+
+    // claim when currPrice is below liquidationPrice
+    it('Checking current price of the asset is below liquidation price', async () => {
+      const currPrice = 1900000000000;
+
+      const numOfAssets =
+        DEFAULT_STATE.SellerDeposit /
+        (DEFAULT_STATE.InitAssetPrice - DEFAULT_STATE.LiquidationPrice);
+
+      const claimReward =
+        numOfAssets *
+        (DEFAULT_STATE.InitAssetPrice - DEFAULT_STATE.LiquidationPrice);
+
+      await oracle.setBTCPrice(currPrice);
+
+      const beforeClaim = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        seller: +(await token.balanceOf(seller.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      // claimReward
+      const claimRewardCDS = await targetCDS.getClaimReward();
+      expect(claimReward).to.equal(claimRewardCDS, 'claim reward');
+
+      // event
+      await expect(cdsLounge.connect(buyer).claim(targetId)).to.emit(
+        cdsLounge,
+        'Claim',
+      );
+
+      // state of cds
+      const status = await targetCDS.status();
+      expect(status).to.equal(3, 'status'); // 3 : claimed
+
+      // balance
+      const afterClaim = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        seller: +(await token.balanceOf(seller.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      expect(afterClaim.buyer).to.equal(
+        beforeClaim.buyer +
+          DEFAULT_STATE.BuyerDeposit -
+          DEFAULT_STATE.Premium +
+          +claimRewardCDS,
+        'buyer',
+      );
+
+      expect(afterClaim.seller).to.equal(
+        beforeClaim.seller + DEFAULT_STATE.SellerDeposit - +claimRewardCDS,
+        'seller',
+      );
+
+      expect(afterClaim.cdsLounge).to.equal(
+        beforeClaim.cdsLounge -
+          (DEFAULT_STATE.BuyerDeposit - DEFAULT_STATE.Premium) -
+          DEFAULT_STATE.SellerDeposit,
+        'cdsLounge',
+      );
+
+      // deposit
       const buyerDeposit = +(await cdsLounge.deposits(targetId, 0));
       expect(buyerDeposit).to.equal(0);
 
