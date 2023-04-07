@@ -5,7 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { INIT_PRICE, EVENT_TYPES, REVERT, EVENT, decode } = require('./utils');
 
-const DEFAULT_CREAT_INPUT = {
+const DEFAULT_STATE = {
   InitAssetPrice: 25000,
   ClaimPrice: 21250,
   LiquidationPrice: 20000,
@@ -50,19 +50,19 @@ describe('CDS Lounge', async () => {
   const create = async () => {
     await token
       .connect(buyer)
-      .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+      .approve(cdsLounge.address, DEFAULT_STATE.BuyerDeposit);
 
     const tx = await cdsLounge
       .connect(buyer)
       .create(
-        DEFAULT_CREAT_INPUT.InitAssetPrice,
-        DEFAULT_CREAT_INPUT.ClaimPrice,
-        DEFAULT_CREAT_INPUT.LiquidationPrice,
-        DEFAULT_CREAT_INPUT.SellerDeposit,
-        DEFAULT_CREAT_INPUT.Premium,
+        DEFAULT_STATE.InitAssetPrice,
+        DEFAULT_STATE.ClaimPrice,
+        DEFAULT_STATE.LiquidationPrice,
+        DEFAULT_STATE.SellerDeposit,
+        DEFAULT_STATE.Premium,
         seller.address,
-        DEFAULT_CREAT_INPUT.PremiumRounds,
-        DEFAULT_CREAT_INPUT.AssetType,
+        DEFAULT_STATE.PremiumRounds,
+        DEFAULT_STATE.AssetType,
       );
 
     const receipt = await tx.wait();
@@ -75,7 +75,7 @@ describe('CDS Lounge', async () => {
   const accept = async (id) => {
     await token
       .connect(seller)
-      .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.SellerDeposit);
+      .approve(cdsLounge.address, DEFAULT_STATE.SellerDeposit);
 
     const tx = await cdsLounge.connect(seller).accept(id);
 
@@ -83,6 +83,12 @@ describe('CDS Lounge', async () => {
     const { cdsId } = receipt.events[3].args;
 
     return cdsId;
+  };
+
+  const getCDS = async (id) => {
+    const cds = await cdsLounge.getCDS(id);
+    const contract = await CDS.attach(cds);
+    return contract;
   };
 
   // set accounts balance, deploy contracts
@@ -154,19 +160,19 @@ describe('CDS Lounge', async () => {
 
       await token
         .connect(buyer)
-        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+        .approve(cdsLounge.address, DEFAULT_STATE.BuyerDeposit);
 
       const tx = await cdsLounge
         .connect(buyer)
         .create(
-          DEFAULT_CREAT_INPUT.InitAssetPrice,
-          DEFAULT_CREAT_INPUT.ClaimPrice,
-          DEFAULT_CREAT_INPUT.LiquidationPrice,
-          DEFAULT_CREAT_INPUT.SellerDeposit,
-          DEFAULT_CREAT_INPUT.Premium,
+          DEFAULT_STATE.InitAssetPrice,
+          DEFAULT_STATE.ClaimPrice,
+          DEFAULT_STATE.LiquidationPrice,
+          DEFAULT_STATE.SellerDeposit,
+          DEFAULT_STATE.Premium,
           seller.address,
-          DEFAULT_CREAT_INPUT.PremiumRounds,
-          DEFAULT_CREAT_INPUT.AssetType,
+          DEFAULT_STATE.PremiumRounds,
+          DEFAULT_STATE.AssetType,
         );
 
       const receipt = await tx.wait();
@@ -185,14 +191,14 @@ describe('CDS Lounge', async () => {
         cdsLounge
           .connect(buyer)
           .create(
-            DEFAULT_CREAT_INPUT.InitAssetPrice,
-            DEFAULT_CREAT_INPUT.ClaimPrice,
-            DEFAULT_CREAT_INPUT.LiquidationPrice,
-            DEFAULT_CREAT_INPUT.SellerDeposit,
-            DEFAULT_CREAT_INPUT.Premium,
+            DEFAULT_STATE.InitAssetPrice,
+            DEFAULT_STATE.ClaimPrice,
+            DEFAULT_STATE.LiquidationPrice,
+            DEFAULT_STATE.SellerDeposit,
+            DEFAULT_STATE.Premium,
             seller.address,
-            DEFAULT_CREAT_INPUT.PremiumRounds,
-            DEFAULT_CREAT_INPUT.AssetType,
+            DEFAULT_STATE.PremiumRounds,
+            DEFAULT_STATE.AssetType,
           ),
       ).to.be.revertedWith(REVERT.INSUFFICIENT_ALLOWANCE);
     });
@@ -202,19 +208,19 @@ describe('CDS Lounge', async () => {
 
       await token
         .connect(buyer)
-        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+        .approve(cdsLounge.address, DEFAULT_STATE.BuyerDeposit);
 
       await expect(
         cdsLounge
           .connect(buyer)
           .create(
-            DEFAULT_CREAT_INPUT.InitAssetPrice,
-            DEFAULT_CREAT_INPUT.ClaimPrice,
-            DEFAULT_CREAT_INPUT.LiquidationPrice,
-            DEFAULT_CREAT_INPUT.SellerDeposit,
-            DEFAULT_CREAT_INPUT.Premium,
+            DEFAULT_STATE.InitAssetPrice,
+            DEFAULT_STATE.ClaimPrice,
+            DEFAULT_STATE.LiquidationPrice,
+            DEFAULT_STATE.SellerDeposit,
+            DEFAULT_STATE.Premium,
             seller.address,
-            DEFAULT_CREAT_INPUT.PremiumRounds,
+            DEFAULT_STATE.PremiumRounds,
             INVALID_ASSET_TYPE,
           ),
       ).to.be.revertedWith(REVERT.INVALID_ASSET_TYPE);
@@ -223,20 +229,20 @@ describe('CDS Lounge', async () => {
     it('should emit event "Create" after proper transaction', async () => {
       await token
         .connect(buyer)
-        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
+        .approve(cdsLounge.address, DEFAULT_STATE.BuyerDeposit);
 
       await expect(
         cdsLounge
           .connect(buyer)
           .create(
-            DEFAULT_CREAT_INPUT.InitAssetPrice,
-            DEFAULT_CREAT_INPUT.ClaimPrice,
-            DEFAULT_CREAT_INPUT.LiquidationPrice,
-            DEFAULT_CREAT_INPUT.SellerDeposit,
-            DEFAULT_CREAT_INPUT.Premium,
+            DEFAULT_STATE.InitAssetPrice,
+            DEFAULT_STATE.ClaimPrice,
+            DEFAULT_STATE.LiquidationPrice,
+            DEFAULT_STATE.SellerDeposit,
+            DEFAULT_STATE.Premium,
             seller.address,
-            DEFAULT_CREAT_INPUT.PremiumRounds,
-            DEFAULT_CREAT_INPUT.AssetType,
+            DEFAULT_STATE.PremiumRounds,
+            DEFAULT_STATE.AssetType,
           ),
       ).to.emit(cdsLounge, 'Create');
     });
@@ -253,11 +259,11 @@ describe('CDS Lounge', async () => {
       let prices = (await cds.getPrices()).map((bn) => +bn);
 
       const defaultPrices = [
-        DEFAULT_CREAT_INPUT.InitAssetPrice,
-        DEFAULT_CREAT_INPUT.ClaimPrice,
-        DEFAULT_CREAT_INPUT.LiquidationPrice,
-        DEFAULT_CREAT_INPUT.Premium,
-        DEFAULT_CREAT_INPUT.SellerDeposit,
+        DEFAULT_STATE.InitAssetPrice,
+        DEFAULT_STATE.ClaimPrice,
+        DEFAULT_STATE.LiquidationPrice,
+        DEFAULT_STATE.Premium,
+        DEFAULT_STATE.SellerDeposit,
       ];
 
       for (let i = 0; i < prices.length; i++) {
@@ -268,10 +274,10 @@ describe('CDS Lounge', async () => {
       expect(status).to.equal(1);
 
       const totalRounds = await cds.totalRounds();
-      expect(totalRounds).to.equal(DEFAULT_CREAT_INPUT.PremiumRounds);
+      expect(totalRounds).to.equal(DEFAULT_STATE.PremiumRounds);
 
       const assetType = await cds.assetType();
-      expect(assetType).to.equal(DEFAULT_CREAT_INPUT.AssetType);
+      expect(assetType).to.equal(DEFAULT_STATE.AssetType);
     });
 
     it('Buyer and Contract should have proper token balance after creating CDS', async () => {
@@ -284,13 +290,19 @@ describe('CDS Lounge', async () => {
       const contractBalanceAfter = await token.balanceOf(cdsLounge.address);
 
       expect(+buyerBalanceAfter).to.equal(
-        +buyerBalanceBefore - DEFAULT_CREAT_INPUT.BuyerDeposit,
+        +buyerBalanceBefore - DEFAULT_STATE.BuyerDeposit,
         'Buyer balance',
       );
       expect(+contractBalanceAfter).to.equal(
-        +contractBalanceBefore + DEFAULT_CREAT_INPUT.BuyerDeposit,
+        +contractBalanceBefore + DEFAULT_STATE.BuyerDeposit,
         'Contract balance',
       );
+    });
+
+    it('Checking deposit in CDSBank', async () => {
+      const { id } = await create();
+      const buyerDepo = +(await cdsLounge.deposits(id, 0));
+      expect(buyerDepo).to.equal(DEFAULT_STATE.BuyerDeposit);
     });
   });
 
@@ -314,7 +326,7 @@ describe('CDS Lounge', async () => {
     it('Checking seller address', async () => {
       await token
         .connect(unauthorized)
-        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.SellerDeposit);
+        .approve(cdsLounge.address, DEFAULT_STATE.SellerDeposit);
 
       await expect(
         cdsLounge.connect(unauthorized).accept(targetId),
@@ -324,7 +336,7 @@ describe('CDS Lounge', async () => {
     it('should emit event "Accept" after proper transaction', async () => {
       await token
         .connect(seller)
-        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.SellerDeposit);
+        .approve(cdsLounge.address, DEFAULT_STATE.SellerDeposit);
 
       await expect(cdsLounge.connect(seller).accept(targetId)).to.emit(
         cdsLounge,
@@ -332,11 +344,141 @@ describe('CDS Lounge', async () => {
       );
     });
 
-    it('Checking state of CDS after accept', async () => {
-      const acceptId = await accept(targetId);
+    it('Checking state of CDS after ACCEPT', async () => {
+      // acceptId => getCDS => CDS => state check, nextPayDate, currRounds
+      await accept(targetId);
 
-      // acceptId => getCDS => CDS => state check
+      const currRounds = await targetCDS.rounds();
+      expect(currRounds).to.equal(DEFAULT_STATE.PremiumRounds - 1);
+
+      const status = await targetCDS.status();
+      expect(status).to.equal(2); // 2: active state
     });
-    it('Checking balance after accept', async () => {});
+
+    it('Checking balance after ACCEPT', async () => {
+      // beforeAccept seller, cdsLounge
+      const beforeAccept = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        seller: +(await token.balanceOf(seller.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      // seller should pay sellerDeposit to cdsLounge and recieve premium from it after ACCEPT
+      await accept(targetId);
+
+      const afterAccept = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        seller: +(await token.balanceOf(seller.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      expect(afterAccept.buyer).to.equal(beforeAccept.buyer);
+
+      expect(afterAccept.seller).to.equal(
+        beforeAccept.seller -
+          DEFAULT_STATE.SellerDeposit +
+          DEFAULT_STATE.Premium,
+      );
+
+      expect(afterAccept.cdsLounge).to.equal(
+        beforeAccept.cdsLounge +
+          DEFAULT_STATE.SellerDeposit -
+          DEFAULT_STATE.Premium,
+      );
+    });
+
+    it('Checking deposit in CDSBank', async () => {
+      await accept(targetId);
+
+      const buyerDeposit = +(await cdsLounge.deposits(targetId, 0));
+      expect(buyerDeposit).to.equal(
+        DEFAULT_STATE.BuyerDeposit - DEFAULT_STATE.Premium,
+      );
+
+      const sellerDeposit = +(await cdsLounge.deposits(targetId, 1));
+      expect(sellerDeposit).to.equal(DEFAULT_STATE.SellerDeposit);
+    });
+  });
+
+  // cancel: pending to inactive
+  describe('Cancel', async () => {
+    let targetCDS, targetId, targetCDSAddr;
+
+    beforeEach(async () => {
+      const { cds, id, cdsAddr } = await create();
+      targetCDS = cds;
+      targetId = +id;
+      targetCDSAddr = cdsAddr;
+    });
+
+    it('Checking caller', async () => {
+      // only buyer or seller can call
+      await expect(
+        cdsLounge.connect(unauthorized).cancel(targetId),
+      ).to.be.rejectedWith(REVERT.UNAUTHORIZED_PARTICIPANTS);
+    });
+    it('Checking state of CDS after CANCEL', async () => {
+      // Cancel by buyer
+      await expect(cdsLounge.connect(buyer).cancel(targetId)).to.emit(
+        cdsLounge,
+        'Cancel',
+      );
+      let status = await targetCDS.status();
+      expect(status).to.equal(0); // 0 : inactive
+
+      // Cancel by seller
+      const { cds, id } = await create();
+      await expect(cdsLounge.connect(seller).cancel(id)).to.emit(
+        cdsLounge,
+        'Cancel',
+      );
+      status = await cds.status();
+      expect(status).to.equal(0);
+    });
+
+    it('Checking balance after CANCEL', async () => {
+      const beforeCancel = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      await cdsLounge.connect(buyer).cancel(targetId);
+
+      const afterCancel = {
+        buyer: +(await token.balanceOf(buyer.address)),
+        cdsLounge: +(await token.balanceOf(cdsLounge.address)),
+      };
+
+      expect(afterCancel.buyer).to.equal(
+        beforeCancel.buyer + DEFAULT_STATE.BuyerDeposit,
+      );
+      expect(afterCancel.cdsLounge).to.equal(
+        beforeCancel.cdsLounge - DEFAULT_STATE.BuyerDeposit,
+      );
+    });
+
+    it('Checking deposit in CDSBank', async () => {
+      await cdsLounge.connect(buyer).cancel(targetId);
+
+      const buyerDeposit = +(await cdsLounge.deposits(targetId, 0));
+      expect(buyerDeposit).to.equal(0);
+    });
+  });
+
+  describe('Close', async () => {
+    let targetCDS, targetId, targetCDSAddr;
+
+    beforeEach(async () => {
+      const { cds, id, cdsAddr } = await create();
+      targetCDS = cds;
+      targetId = id;
+      targetCDSAddr = cdsAddr;
+    });
+
+    it('Checking status', async () => {});
+    it('Checking authority', async () => {});
+    it('Checking state of CDS after CLOSE', async () => {});
+    it('Checking balance after CLOSE', async () => {});
+    it('Checking deposit in CDSBank', async () => {});
   });
 });

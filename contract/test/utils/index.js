@@ -15,6 +15,7 @@ module.exports = {
     INSUFFICIENT_ALLOWANCE: 'ERC20: insufficient allowance',
     INVALID_ASSET_TYPE: 'BTC:0, ETH:1, LINK:2',
     UNAUTHORIZED_SELLER: 'Unauthorized address',
+    UNAUTHORIZED_PARTICIPANTS: 'Only buyer/seller of the CDS can call',
   },
   EVENT: {},
   hash: (data) => {
