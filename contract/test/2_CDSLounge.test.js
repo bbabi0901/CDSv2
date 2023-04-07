@@ -48,7 +48,7 @@ describe('CDS Lounge', async () => {
   let oracle, token, cdsLounge, CDS;
 
   const create = async () => {
-    const txA = await token
+    await token
       .connect(buyer)
       .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.BuyerDeposit);
 
@@ -108,6 +108,7 @@ describe('CDS Lounge', async () => {
     // faucet
     await token.transfer(buyer.address, DEFAULT_FAUCET);
     await token.transfer(seller.address, DEFAULT_FAUCET);
+    await token.transfer(unauthorized.address, DEFAULT_FAUCET);
   });
 
   describe('Initial Settings', async () => {
@@ -116,6 +117,9 @@ describe('CDS Lounge', async () => {
       expect(+bal).to.equal(DEFAULT_FAUCET);
 
       bal = await token.balanceOf(seller.address);
+      expect(+bal).to.equal(DEFAULT_FAUCET);
+
+      bal = await token.balanceOf(unauthorized.address);
       expect(+bal).to.equal(DEFAULT_FAUCET);
     });
 
@@ -288,16 +292,22 @@ describe('CDS Lounge', async () => {
       targetCDSAddr = cdsAddr;
     });
 
-    it('Checking seller', async () => {});
     it('Checking allowance', async () => {
-      console.log(targetId);
-      const sellerAddress = await targetCDS.getSeller();
-      console.log(sellerAddress === seller.address);
-      const tx = await cdsLounge.connect(seller).accept(targetId);
-      // await expect(
-      //   cdsLounge.connect(seller).accept(targetId).to.be.revertedWith,
-      // );
+      await expect(
+        cdsLounge.connect(seller).accept(targetId),
+      ).to.be.revertedWith(REVERT.INSUFFICIENT_ALLOWANCE);
     });
+
+    it('Checking seller', async () => {
+      const tx = await token
+        .connect(unauthorized)
+        .approve(cdsLounge.address, DEFAULT_CREAT_INPUT.SellerDeposit);
+
+      await expect(
+        cdsLounge.connect(unauthorized).accept(targetId),
+      ).to.be.revertedWith(REVERT.UNAUTHORIZED_SELLER);
+    });
+
     it('Checking event', async () => {});
     it('Checking state of CDS after accept', async () => {});
     it('Checking balance after accept', async () => {});
