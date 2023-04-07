@@ -1053,4 +1053,68 @@ describe('CDS Lounge', async () => {
       expect(after.sellerDeposit).to.equal(0);
     });
   });
+
+  describe('Expire by deposits', async () => {
+    let targetCDS, targetId, targetCDSAddr;
+
+    beforeEach(async () => {
+      const { cds, id, cdsAddr } = await create();
+      targetCDS = cds;
+      targetId = +id;
+      targetCDSAddr = cdsAddr;
+
+      await accept(targetId);
+
+      // 3
+      await cdsLounge.connect(seller).payPremiumByDeposit(targetId);
+      // 2
+      await cdsLounge.connect(seller).payPremiumByDeposit(targetId);
+    });
+
+    it('should fail if deposit left is not 0', async () => {
+      await expect(
+        cdsLounge.connect(seller).expire(targetId),
+      ).to.be.rejectedWith(REVERT.UNABLE_EXPIRE);
+    });
+
+    it('Checking after "Expire"', async () => {
+      // current round = 1
+      await cdsLounge.connect(seller).payPremiumByDeposit(targetId);
+
+      // current round = 0
+      const before = {
+        buyerBalance: +(await token.balanceOf(buyer.address)),
+        sellerBalance: +(await token.balanceOf(seller.address)),
+        cdsLoungeBalance: +(await token.balanceOf(cdsLounge.address)),
+        sellerDeposit: +(await cdsLounge.deposits(targetId, 1)),
+      };
+
+      await expect(cdsLounge.connect(seller).expire(targetId)).to.emit(
+        cdsLounge,
+        'Expire',
+      );
+
+      const after = {
+        status: +(await targetCDS.status()),
+        buyerBalance: +(await token.balanceOf(buyer.address)),
+        sellerBalance: +(await token.balanceOf(seller.address)),
+        cdsLoungeBalance: +(await token.balanceOf(cdsLounge.address)),
+        buyerDeposit: +(await cdsLounge.deposits(targetId, 0)),
+        sellerDeposit: +(await cdsLounge.deposits(targetId, 1)),
+      };
+
+      expect(after.status).to.equal(4, 'status');
+      expect(after.buyerBalance).to.equal(before.buyerBalance, 'buyer balance');
+      expect(after.sellerBalance).to.equal(
+        before.sellerBalance + before.sellerDeposit,
+        'seller balance',
+      );
+      expect(after.cdsLoungeBalance).to.equal(
+        before.cdsLoungeBalance - before.sellerDeposit,
+        'seller balance',
+      );
+      expect(after.buyerDeposit).to.equal(0);
+      expect(after.sellerDeposit).to.equal(0);
+    });
+  });
 });
