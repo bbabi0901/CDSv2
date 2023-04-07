@@ -66,11 +66,10 @@ describe('CDS Lounge', async () => {
       );
 
     const receipt = await tx.wait();
-
-    const { cds: cdsAddr } = receipt.events[3].args;
+    const { cdsId: id, cds: cdsAddr } = receipt.events[3].args;
     const cds = CDS.attach(cdsAddr);
 
-    return { cds, cdsAddr };
+    return { cds, id, cdsAddr };
   };
 
   // set accounts balance, deploy contracts
@@ -111,7 +110,7 @@ describe('CDS Lounge', async () => {
     await token.transfer(seller.address, DEFAULT_FAUCET);
   });
 
-  describe('Initial Settings Test', async () => {
+  describe('Initial Settings', async () => {
     it('Faucet check', async () => {
       let bal = await token.balanceOf(buyer.address);
       expect(+bal).to.equal(DEFAULT_FAUCET);
@@ -280,10 +279,25 @@ describe('CDS Lounge', async () => {
 
   describe('Accept', () => {
     // create before each case
-    beforeEach(async () => {});
+    let targetCDS, targetId, targetCDSAddr;
+
+    beforeEach(async () => {
+      const { cds, id, cdsAddr } = await create();
+      targetCDS = cds;
+      targetId = id;
+      targetCDSAddr = cdsAddr;
+    });
 
     it('Checking seller', async () => {});
-    it('Checking allowance', async () => {});
+    it('Checking allowance', async () => {
+      console.log(targetId);
+      const sellerAddress = await targetCDS.getSeller();
+      console.log(sellerAddress === seller.address);
+      const tx = await cdsLounge.connect(seller).accept(targetId);
+      // await expect(
+      //   cdsLounge.connect(seller).accept(targetId).to.be.revertedWith,
+      // );
+    });
     it('Checking event', async () => {});
     it('Checking state of CDS after accept', async () => {});
     it('Checking balance after accept', async () => {});

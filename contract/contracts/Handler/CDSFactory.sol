@@ -56,6 +56,7 @@ contract CDSFactory {
     // uint256 _initAssetPrice,
     uint256 _targetCDSId
   ) internal {
+    require(msg.sender == getSeller(_targetCDSId), 'Unauthorized address');
     CDS targetCDS = _cdsList[_targetCDSId];
 
     // targetCDS.accept(_initAssetPrice, msg.sender, _isBuyerHost);

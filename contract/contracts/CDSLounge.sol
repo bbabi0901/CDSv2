@@ -72,8 +72,6 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
   }
 
   function accept(uint256 _cdsId) external override returns (uint256) {
-    require(msg.sender != getSeller(_cdsId), 'Unauthorized address');
-
     // bool isSeller = (getSeller(_cdsId) == address(0)); // true when seller is accepting
     _accept(_cdsId);
 
