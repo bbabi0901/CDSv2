@@ -6,6 +6,8 @@ import '@openzeppelin/contracts/utils/Counters.sol';
 
 // import 'hardhat/console.sol';
 
+error UnauthorizedSeller(address, address);
+
 contract CDSFactory {
   using Counters for Counters.Counter;
   Counters.Counter internal _cdsId;
@@ -56,7 +58,10 @@ contract CDSFactory {
     // uint256 _initAssetPrice,
     uint256 _targetCDSId
   ) internal {
-    require(msg.sender == getSeller(_targetCDSId), 'Unauthorized address');
+    // require(msg.sender == getSeller(_targetCDSId), 'Unauthorized address');
+    if (msg.sender != getSeller(_targetCDSId))
+      revert UnauthorizedSeller(msg.sender, getSeller(_targetCDSId));
+
     CDS targetCDS = _cdsList[_targetCDSId];
 
     // targetCDS.accept(_initAssetPrice, msg.sender, _isBuyerHost);
