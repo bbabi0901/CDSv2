@@ -1,26 +1,28 @@
-const FUSD = artifacts.require('FUSD');
+const hre = require('hardhat');
 
-const { writeAddress, isDeployed } = require('./utils');
+const { writeAddress, isDeployed, writeEnv } = require('./utils');
 
-// address 있으면 배포, 없으면 배포 x
-module.exports = async function (deployer, network) {
-  console.log(`Deploying "FUSD" ON : ** ${network.toUpperCase()} **`);
-
+async function main() {
   try {
-    const addr = isDeployed('fusd');
-    if (!addr) {
-      const FUSDReceipt = await deployer.deploy(FUSD);
-      const currentTime = new Date();
+    let fusdAddr = readAddress('fusd');
+    if (!fusdAddr) {
+      const FUSD = await hre.ethers.getContractFactory('FUSD');
+      const fusd = await FUSD.deploy();
+      await fusd.deployed();
 
-      writeAddress('fusd', FUSD.address);
-
-      console.log(`${currentTime}
-    Deployed "FUSD" on ***${network.toUpperCase()}*** network
-        Contract ADDRESS:  ${FUSD.address}`);
-    } else {
-      console.log(`Already Deployed ON : ${addr}`);
+      fusdAddr = fusd.address;
+      writeAddress('fusd', fusdAddr);
     }
-  } catch (err) {
-    console.log(err);
+    console.log(`FUSD deployed to ${fusdAddr}`);
+    writeEnv('FUSD_ADDR', fusdAddr);
+  } catch (error) {
+    console.log(error);
   }
-};
+}
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
