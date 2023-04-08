@@ -9,6 +9,10 @@ async function main() {
 
     const CDSLounge = await hre.ethers.getContractFactory('CDSLounge');
     const cdsLounge = await CDSLounge.deploy();
+    console.log(
+      cdsLounge.deployTransaction.gasPrice,
+      cdsLounge.deployTransaction.maxFeePerGas,
+    );
     await cdsLounge.deployed();
 
     writeAddress('CDSLounge', cdsLounge.address);

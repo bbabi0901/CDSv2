@@ -9,10 +9,6 @@ contract PriceConsumer {
 
   PriceOracleMock public priceOracle;
 
-  // constructor(address _address) {
-  //   priceOracle = PriceOracleMock(_address);
-  // }
-
   function setOracle(address _oracle) internal {
     priceOracle = PriceOracleMock(_oracle);
   }

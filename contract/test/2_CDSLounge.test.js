@@ -4,6 +4,7 @@ const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { INIT_PRICE, EVENT_TYPES, REVERT, EVENT, decode } = require('./utils');
+const { append } = require('express/lib/response');
 
 const DEFAULT_STATE = {
   InitAssetPrice: 25000,
@@ -47,6 +48,8 @@ describe('CDS Lounge', async () => {
   // contracts
   let oracle, token, cdsLounge, CDS;
 
+  let acceptedCDS = [];
+
   const create = async () => {
     await token
       .connect(buyer)
@@ -81,6 +84,9 @@ describe('CDS Lounge', async () => {
 
     const receipt = await tx.wait();
     const { cdsId } = receipt.events[3].args;
+
+    const cdsAddr = await cdsLounge.getCDS(id);
+    acceptedCDS.push(cdsAddr);
 
     return cdsId;
   };
@@ -332,13 +338,13 @@ describe('CDS Lounge', async () => {
         .connect(unauthorized)
         .approve(cdsLounge.address, DEFAULT_STATE.SellerDeposit);
 
-      // await expect(
-      //   cdsLounge.connect(unauthorized).accept(targetId),
-      // ).to.be.revertedWith(REVERT.UNAUTHORIZED_SELLER);
-
       await expect(
         cdsLounge.connect(unauthorized).accept(targetId),
-      ).to.be.revertedWithCustomError(cdsLounge, 'UnauthorizedSeller');
+      ).to.be.revertedWith(REVERT.NOT_SELLER);
+
+      // await expect(
+      //   cdsLounge.connect(unauthorized).accept(targetId),
+      // ).to.be.revertedWithCustomError(cdsLounge, 'UnauthorizedSeller');
     });
 
     it('should emit event "Accept" after proper transaction', async () => {
@@ -408,8 +414,6 @@ describe('CDS Lounge', async () => {
     });
   });
 
-  /*
-  // cancel: pending to inactive
   describe('Cancel', async () => {
     let targetCDS, targetId, targetCDSAddr;
 
@@ -1122,5 +1126,12 @@ describe('CDS Lounge', async () => {
       expect(after.sellerDeposit).to.equal(0);
     });
   });
-  */
+
+  describe('Owned CDS', () => {
+    it('Checking owned cds', async () => {
+      const ownedCDS = await cdsLounge.getOwnedCDS(buyer.address);
+      console.log(ownedCDS, ownedCDS.length);
+      console.log(acceptedCDS, ownedCDS.length);
+    });
+  });
 });

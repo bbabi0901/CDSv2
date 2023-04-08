@@ -53,8 +53,6 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
     uint32 totalRounds,
     uint32 assetType
   ) external override returns (uint256) {
-    // console.log('Creating CDS contract by', msg.sender);
-
     uint256 newCDSId = _create(
       initAssetPrice,
       claimPrice,
@@ -71,15 +69,16 @@ contract CDSLounge is CDSBank, Ownable, CDSInterface {
     return newCDSId;
   }
 
-  function accept(uint256 _cdsId) external override returns (uint256) {
-    // bool isSeller = (getSeller(_cdsId) == address(0)); // true when seller is accepting
-    _accept(_cdsId);
+  function accept(
+    uint256 cdsId
+  ) external override isSeller(cdsId) returns (uint256) {
+    _accept(cdsId);
 
-    _sendDeposit(_cdsId, false); // false when seller is accepting
-    _sendFirstPremium(_cdsId);
+    _sendDeposit(cdsId, false); // false when seller is accepting
+    _sendFirstPremium(cdsId);
 
-    emit Accept(_cdsId);
-    return _cdsId;
+    emit Accept(cdsId);
+    return cdsId;
   }
 
   function cancel(
