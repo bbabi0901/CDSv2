@@ -1,6 +1,9 @@
+const hre = require('hardhat');
 const fs = require('fs');
 
-const CA_PATH = '../address.json';
+require('dotenv').config();
+
+const CA_PATH = '../contract/CONTRACT_ADDRESS.json';
 
 module.exports = {
   writeAddress: (contract, address) => {
@@ -16,9 +19,13 @@ module.exports = {
       addresses[contract] = address;
     }
     const jsonString = JSON.stringify(addresses);
-    fs.writeFileSync(CA_PATH, jsonString);
+    try {
+      fs.writeFileSync(CA_PATH, jsonString);
+    } catch (error) {
+      console.log(error);
+    }
   },
-  isDeployed: (contract) => {
+  readAddress: (contract) => {
     try {
       const jsonString = fs.readFileSync(CA_PATH, {
         encoding: 'utf-8',
@@ -32,5 +39,12 @@ module.exports = {
     } catch (error) {
       return false;
     }
+  },
+  getAccount: () => {},
+  defaultState: {
+    BTC: {},
+    ETH: {},
+    LINK: {},
+    faucet: 10000000,
   },
 };
