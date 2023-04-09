@@ -1,6 +1,6 @@
 const hre = require('hardhat');
 
-const { writeAddress, isDeployed } = require('./utils');
+const { writeAddress, readAddress } = require('./utils');
 
 async function main() {
   try {

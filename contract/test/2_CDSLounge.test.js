@@ -1,10 +1,7 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-
-const { INIT_PRICE, EVENT_TYPES, REVERT, EVENT, decode } = require('./utils');
-const { append } = require('express/lib/response');
+const { REVERT } = require('./utils');
 
 const DEFAULT_STATE = {
   InitAssetPrice: 25000,
@@ -12,7 +9,7 @@ const DEFAULT_STATE = {
   LiquidationPrice: 20000,
   SellerDeposit: 50000,
   Premium: 750,
-  PremiumRounds: 12, // total lifecycle of test cds is 2hrs
+  PremiumRounds: 12,
   BuyerDeposit: 3000,
   AssetType: 0, // BTC:0, ETH:1, LINK:2
 };

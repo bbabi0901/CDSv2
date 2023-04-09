@@ -1,6 +1,6 @@
 const hre = require('hardhat');
 
-const { writeAddress, isDeployed, writeEnv } = require('./utils');
+const { writeAddress, readAddress } = require('./utils');
 
 async function main() {
   try {
@@ -14,7 +14,6 @@ async function main() {
       writeAddress('fusd', fusdAddr);
     }
     console.log(`FUSD deployed to ${fusdAddr}`);
-    writeEnv('FUSD_ADDR', fusdAddr);
   } catch (error) {
     console.log(error);
   }
