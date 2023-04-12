@@ -69,6 +69,22 @@ async function main() {
     const faucet = async (address) => {
       await fusd.transfer(address, defaultState.faucet);
     };
+    const setPrice = async (price, asset) => {
+      await oracle.setBTCPrice(price);
+      switch (asset) {
+        case 'BTC':
+          await oracle.setBTCPrice(price);
+          break;
+        case 'ETH':
+          await oracle.setETHPrice(price);
+          break;
+        case 'LINK':
+          await oracle.setLinkPrice(price);
+          break;
+        default:
+          break;
+      }
+    };
 
     const pendingCase = async (buyer, seller, asset) => {
       console.log(`
@@ -77,62 +93,6 @@ async function main() {
       `);
       await create(buyer, seller, defaultState[asset]);
     };
-
-    // check
-    fusdAddr = await cdsLounge.token();
-    oracleAddr = await cdsLounge.oracle();
-    console.log(`
-    Checking for CDS
-      CDS LOUNGE ADDR :  ${cdsLoungeAddr}
-      Set Oracle ADDR :  ${oracleAddr}
-      Set FUSD ADDR   :  ${fusdAddr}
-    `);
-
-    const [owner, addr1, addr2, addr3, addr4, addr5] =
-      await ethers.getSigners();
-
-    // faucet
-    /*
-    await faucet(addr1.address);
-    await faucet(addr2.address);
-    await faucet(addr3.address);
-    await faucet(addr4.address);
-    await faucet(addr5.address);
-    */
-
-    // Sample cases
-    // cases of pending status
-    /*
-    await pendingCase(addr2, addr1, 'BTC');
-    await pendingCase(addr3, addr1, 'ETH');
-    await pendingCase(addr4, addr1, 'LINK');
-    */
-
-    // active -> accept + payPremium or payPremiumByDeposit
-    const activeCase = async (buyer, seller, asset, byDeposit = false) => {
-      console.log(`
-      - Case of active
-      --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
-      `);
-      const { cdsId } = await create(buyer, seller, defaultState[asset]);
-      await accept(seller, cdsId);
-
-      byDeposit
-        ? await payPremiumByDeposit(seller, cdsId)
-        : await payPremium(buyer, cdsId);
-    };
-
-    //  payPremium by buyer
-    await activeCase(addr2, addr5, 'BTC');
-    await activeCase(addr5, addr4, 'ETH');
-    await activeCase(addr2, addr3, 'LINK');
-
-    // payPremiumByDeposit by seller
-    await activeCase(addr1, addr5, 'BTC', true);
-    await activeCase(addr1, addr4, 'ETH', true);
-    await activeCase(addr1, addr3, 'LINK', true);
-
-    // inactive -> cancel
     const inactiveCase = async (buyer, seller, asset) => {
       state = {
         BTC: {
@@ -174,15 +134,18 @@ async function main() {
       const { cdsId } = await create(buyer, seller, state[asset]);
       await cdsLounge.connect(buyer).cancel(cdsId);
     };
+    const activeCase = async (buyer, seller, asset, byDeposit = false) => {
+      console.log(`
+      - Case of active
+      --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
+      `);
+      const { cdsId } = await create(buyer, seller, defaultState[asset]);
+      await accept(seller, cdsId);
 
-    await inactiveCase(addr3, addr2, 'BTC');
-    await inactiveCase(addr3, addr2, 'LINK');
-    await inactiveCase(addr3, addr2, 'ETH');
-
-    // expired -> close, expired by rounds / deposit => 위에꺼보다 이거 먼저하는게 나을듯
-    // not claimable => 하나는 close by buyer => 3
-    // 하나는 rounds 5개 정도로 잡고 5번 다 payPremium 후  expire => 3
-    // 하나는 payPremiumByDepo 후 expire => 3
+      byDeposit
+        ? await payPremiumByDeposit(seller, cdsId)
+        : await payPremium(buyer, cdsId);
+    };
     const closeCase = async (buyer, seller, asset) => {
       console.log(`
       - Case of close
@@ -193,7 +156,6 @@ async function main() {
       await payPremium(buyer, cdsId);
       await cdsLounge.connect(buyer).close(cdsId);
     };
-
     const expiredCase = async (buyer, seller, asset, byDeposit = false) => {
       console.log(`
       - Case of expired
@@ -217,38 +179,6 @@ async function main() {
         await cdsLounge.connect(seller).expire(cdsId);
       }
     };
-
-    await closeCase(addr4, addr3, 'BTC');
-    await closeCase(addr2, addr1, 'ETH');
-    await closeCase(addr1, addr5, 'LINK');
-
-    await expiredCase(addr4, addr3, 'BTC', true);
-    await expiredCase(addr1, addr4, 'ETH', true);
-    await expiredCase(addr1, addr4, 'LINK', true);
-
-    await expiredCase(addr2, addr1, 'BTC', false);
-    await expiredCase(addr3, addr1, 'ETH', false);
-    await expiredCase(addr4, addr5, 'LINK', false);
-
-    const setPrice = async (price, asset) => {
-      await oracle.setBTCPrice(price);
-      switch (asset) {
-        case 'BTC':
-          await oracle.setBTCPrice(price);
-          break;
-        case 'ETH':
-          await oracle.setETHPrice(price);
-          break;
-        case 'LINK':
-          await oracle.setLinkPrice(price);
-          break;
-        default:
-          break;
-      }
-    };
-
-    // claimed or claimable
-    // claimed, liquidation, claimable
     const claimCase = async (buyer, seller, asset, price, isClaimed = true) => {
       const caseType = isClaimed ? 'claim / liquidation' : 'claimable';
       console.log(`
@@ -271,6 +201,66 @@ async function main() {
         await setPrice(defaultState[asset].InitAssetPrice, asset);
       }
     };
+
+    // check
+    fusdAddr = await cdsLounge.token();
+    oracleAddr = await cdsLounge.oracle();
+    console.log(`
+    Checking for CDS
+      CDS LOUNGE ADDR :  ${cdsLoungeAddr}
+      Set Oracle ADDR :  ${oracleAddr}
+      Set FUSD ADDR   :  ${fusdAddr}
+    `);
+
+    const [owner, addr1, addr2, addr3, addr4, addr5] =
+      await ethers.getSigners();
+
+    // faucet
+    await faucet(addr1.address);
+    await faucet(addr2.address);
+    await faucet(addr3.address);
+    await faucet(addr4.address);
+    await faucet(addr5.address);
+
+    // Sample cases
+    // cases of pending status
+    await pendingCase(addr2, addr1, 'BTC');
+    await pendingCase(addr3, addr1, 'ETH');
+    await pendingCase(addr4, addr1, 'LINK');
+
+    // active -> accept + payPremium or payPremiumByDeposit
+    //  payPremium by buyer
+    await activeCase(addr2, addr5, 'BTC');
+    await activeCase(addr5, addr4, 'ETH');
+    await activeCase(addr2, addr3, 'LINK');
+
+    // payPremiumByDeposit by seller
+    await activeCase(addr1, addr5, 'BTC', true);
+    await activeCase(addr1, addr4, 'ETH', true);
+    await activeCase(addr1, addr3, 'LINK', true);
+
+    // inactive -> cancel
+
+    await inactiveCase(addr3, addr2, 'BTC');
+    await inactiveCase(addr3, addr2, 'LINK');
+    await inactiveCase(addr3, addr2, 'ETH');
+
+    // expired -> close, expired by rounds / deposit
+    await closeCase(addr4, addr3, 'BTC');
+    await closeCase(addr2, addr1, 'ETH');
+    await closeCase(addr1, addr5, 'LINK');
+
+    // by deposit
+    await expiredCase(addr4, addr3, 'BTC', true);
+    await expiredCase(addr1, addr4, 'ETH', true);
+    await expiredCase(addr1, addr4, 'LINK', true);
+
+    // by rounds
+    await expiredCase(addr2, addr1, 'BTC', false);
+    await expiredCase(addr3, addr1, 'ETH', false);
+    await expiredCase(addr4, addr5, 'LINK', false);
+
+    // claimed, liquidation, claimable
     // claim
     await claimCase(addr1, addr2, 'BTC', 21000, true);
     await claimCase(addr5, addr2, 'ETH', 1300, true);

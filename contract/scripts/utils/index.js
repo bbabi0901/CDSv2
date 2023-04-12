@@ -1,5 +1,18 @@
-const hre = require('hardhat');
+const { ethers } = require('hardhat');
 const fs = require('fs');
+
+const {
+  abi: ORACLE_ABI,
+} = require('../../artifacts/contracts/Oracle/PriceOracleMock.sol/PriceOracleMock.json');
+const {
+  abi: FUSD_ABI,
+} = require('../../artifacts/contracts/FUSD.sol/FUSD.json');
+const {
+  abi: CDSLOUNGE_ABI,
+} = require('../../artifacts/contracts/CDSLounge.sol/CDSLounge.json');
+const {
+  bytecode: CDS_BYTECODE,
+} = require('../../artifacts/contracts/CDS/CDS.sol/CDS.json');
 
 require('dotenv').config();
 
@@ -78,4 +91,295 @@ module.exports = {
   writeAddress,
   readAddress,
   defaultState,
+  CDS: class CDS {
+    instance;
+    provider;
+    endPoint;
+    gasPrice;
+    owner;
+    oracle;
+    fusd;
+    cdsLounge;
+
+    constructor(owner, endPoint) {
+      this.endPoint = endPoint;
+      this.provider = new ethers.providers.JsonRpcProvider(endPoint);
+      this.gasPrice = this.provider.getGasPrice();
+      this.owner = owner;
+    }
+
+    static getCDS(owner, endPoint = 'http://localhost:8545') {
+      if (!CDS.instance) {
+        CDS.instance = new CDS(owner, endPoint);
+      } else {
+        CDS.endPoint = endPoint; //
+      }
+      return CDS.instance;
+    }
+
+    async setContracts(oracle, fusd, cdsLounge) {
+      // const signer = this.owner.connect(this.provider);
+      // Error: cannot alter JSON-RPC Signer connection (operation="connect", code=UNSUPPORTED_OPERATION, version=providers/5.7.2)
+      // 132줄 때문에 오류 발생 => 왜냐면 owner가 이미 connect상태라서 connect가 불필요였음.
+      this.oracle = new ethers.Contract(oracle, ORACLE_ABI, this.owner);
+
+      this.fusd = new ethers.Contract(fusd, FUSD_ABI, this.owner);
+
+      this.cdsLounge = new ethers.Contract(
+        cdsLounge,
+        CDSLOUNGE_ABI,
+        this.provider,
+      );
+
+      const cdsInterface = [
+        'constructor(address _oracle, uint256 _initAssetPrice, uint256 _claimPrice, uint256 _liquidationPrice, uint256 _premium, uint256 _sellerDeposit, uint32 _rounds, uint32 _assetType)',
+
+        'function premiumPaid() external',
+
+        'function accept() external',
+
+        'function cancel() external',
+
+        'function close() external',
+
+        'function claim() external',
+
+        'function checkRoundsZero() external view  returns (bool)',
+
+        'function checkPayDatePassed() external view  returns (bool)',
+
+        'function setInitAssetPrice(uint256 _initAssetPrice) public returns (uint256)',
+
+        'function setStatus(Status _status) private  returns (Status)',
+
+        'function setBuyer(address _buyer) public  returns (address)',
+
+        'function setSeller(address _seller) public  returns (address)',
+
+        'function setRounds(uint32 _rounds) private  returns (uint32)',
+
+        'function setNextPayDate() private  returns (uint256)',
+
+        'function getPrices() public view returns (uint256[5] memory)',
+
+        'function getAmountOfAsset() public view returns (uint256)',
+
+        'function getBuyer() public view returns (address)',
+
+        'function getSeller() public view returns (address)',
+
+        'function getClaimReward() public view returns (uint256)',
+      ];
+      const CDS_INTERFACE = new ethers.utils.Interface(cdsInterface);
+      this.cdsFactory = new ethers.ContractFactory(CDS_INTERFACE, CDS_BYTECODE);
+    }
+
+    async create(buyer, seller, data) {
+      await this.fusd
+        .connect(buyer)
+        .approve(this.cdsLoungeAddr, data.BuyerDeposit);
+      const tx = await this.cdsLounge
+        .connect(buyer)
+        .create(
+          data.InitAssetPrice,
+          data.ClaimPrice,
+          data.LiquidationPrice,
+          data.SellerDeposit,
+          data.Premium,
+          seller.address,
+          data.PremiumRounds,
+          data.AssetType,
+        );
+
+      const receipt = await tx.wait();
+      const { cdsId, cds } = receipt.events[3].args;
+
+      return { cdsId, cds };
+    }
+
+    async accept(seller, id) {
+      const cdsAddr = await this.cdsLounge.getCDS(id);
+      const cds = this.cdsFactory.attach(cdsAddr);
+      const sellerDeposit = await cds.sellerDeposit();
+
+      await this.fusd
+        .connect(seller)
+        .approve(this.cdsLounge.address, sellerDeposit);
+
+      const tx = await this.cdsLounge.connect(seller).accept(id);
+
+      const receipt = await tx.wait();
+      const { cdsId } = receipt.events[3].args;
+
+      return { cdsId, cdsAddr };
+    }
+
+    async payPremium(buyer, id) {
+      const cdsAddr = await this.cdsLounge.getCDS(id);
+      const cds = this.cdsFactory.attach(cdsAddr);
+      const premium = await cds.premium();
+
+      await this.fusd.connect(buyer).approve(this.cdsLounge.address, premium);
+      await this.cdsLounge.connect(buyer).payPremium(id);
+    }
+
+    async payPremiumByDeposit(seller, id) {
+      await this.cdsLounge.connect(seller).payPremiumByDeposit(id);
+    }
+
+    async faucet(wallet) {
+      // const signer = wallet.connect(this.provider);
+
+      // const txData = {
+      //   from: wallet.address,
+      //   gasPrice: this.gasPrice,
+      //   // gasLimit: ethers.utils.hexlify(gas_limit), // 100000
+      //   nonce: this.provider.getTransactionCount(wallet.address, 'latest'),
+      // };
+      // const tx = await signer.sendTransaction(txData);
+
+      const tx = await this.fusd.transfer(wallet.address, defaultState.faucet);
+      console.log(tx);
+    }
+
+    async setPrice(price, asset) {
+      await this.oracle.setBTCPrice(price);
+      switch (asset) {
+        case 'BTC':
+          await this.oracle.setBTCPrice(price);
+          break;
+        case 'ETH':
+          await this.oracle.setETHPrice(price);
+          break;
+        case 'LINK':
+          await this.oracle.setLinkPrice(price);
+          break;
+        default:
+          break;
+      }
+    }
+
+    async pendingCase(buyer, seller, asset) {
+      console.log(`
+      - Case of pending
+      --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
+      `);
+      await this.create(buyer, seller, defaultState[asset]);
+    }
+
+    async inactiveCase(buyer, seller, asset) {
+      state = {
+        BTC: {
+          InitAssetPrice: 30000,
+          ClaimPrice: 20000,
+          LiquidationPrice: 15000,
+          SellerDeposit: 150000,
+          Premium: 1500,
+          PremiumRounds: 12,
+          BuyerDeposit: 6000,
+          AssetType: 0,
+        },
+        ETH: {
+          InitAssetPrice: 2000,
+          ClaimPrice: 1200,
+          LiquidationPrice: 800,
+          SellerDeposit: 12000,
+          Premium: 250,
+          PremiumRounds: 12,
+          BuyerDeposit: 1000,
+          AssetType: 1,
+        },
+        LINK: {
+          InitAssetPrice: 10,
+          ClaimPrice: 6,
+          LiquidationPrice: 4,
+          SellerDeposit: 6000,
+          Premium: 80,
+          PremiumRounds: 12,
+          BuyerDeposit: 320,
+          AssetType: 2,
+        },
+      };
+
+      console.log(`
+      - Case of inactive
+      --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
+      `);
+      const { cdsId } = await this.create(buyer, seller, state[asset]);
+      await this.cdsLounge.connect(buyer).cancel(cdsId);
+    }
+
+    async activeCase(buyer, seller, asset, byDeposit = false) {
+      console.log(`
+      - Case of active
+      --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
+      `);
+      const { cdsId } = await this.create(buyer, seller, defaultState[asset]);
+      await this.accept(seller, cdsId);
+
+      byDeposit
+        ? await this.payPremiumByDeposit(seller, cdsId)
+        : await this.payPremium(buyer, cdsId);
+    }
+
+    async closeCase(buyer, seller, asset) {
+      console.log(`
+      - Case of close
+      --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
+      `);
+      const { cdsId } = await this.create(buyer, seller, state[asset]);
+      await this.accept(seller, cdsId);
+      await this.payPremium(buyer, cdsId);
+      await this.cdsLounge.connect(buyer).close(cdsId);
+    }
+
+    async expiredCase(buyer, seller, asset, byDeposit = false) {
+      console.log(`
+      - Case of expired
+      --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
+      `);
+
+      state = defaultState;
+      state[asset].PremiumRounds = 4;
+      const { cdsId } = await this.create(buyer, seller, state[asset]);
+      await this.accept(seller, cdsId);
+
+      if (byDeposit) {
+        await this.payPremiumByDeposit(seller, cdsId);
+        await this.payPremiumByDeposit(seller, cdsId);
+        await this.payPremiumByDeposit(seller, cdsId);
+
+        await this.cdsLounge.connect(seller).expire(cdsId);
+      } else {
+        await this.payPremium(buyer, cdsId);
+        await this.payPremium(buyer, cdsId);
+        await this.payPremium(buyer, cdsId);
+
+        await this.cdsLounge.connect(seller).expire(cdsId);
+      }
+    }
+
+    async claimCase(buyer, seller, asset, price, isClaimed = true) {
+      const caseType = isClaimed ? 'claim / liquidation' : 'claimable';
+      console.log(`
+      - Case of ${caseType}
+      --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
+      `);
+
+      const { cdsId } = await this.create(buyer, seller, defaultState[asset]);
+      await this.accept(seller, cdsId);
+
+      await this.payPremium(buyer, cdsId);
+      await this.payPremium(buyer, cdsId);
+      await this.payPremium(buyer, cdsId);
+      await this.payPremium(buyer, cdsId);
+
+      await this.setPrice(price, asset);
+      if (isClaimed) {
+        await this.cdsLounge.connect(buyer).claim(cdsId);
+        // set price back to default
+        await this.setPrice(defaultState[asset].InitAssetPrice, asset);
+      }
+    }
+  },
 };
