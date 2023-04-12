@@ -9,7 +9,6 @@ const {
 } = require('../../artifacts/contracts/CDSLounge.sol/CDSLounge.json');
 const {
   abi: CDS_ABI,
-  bytecode: CDS_BYTECODE,
 } = require('../../artifacts/contracts/CDS/CDS.sol/CDS.json');
 
 const cdsInterface = [
@@ -59,6 +58,4 @@ module.exports = {
   FUSD_ABI,
   CDSLOUNGE_ABI,
   CDS_ABI,
-  CDS_BYTECODE,
-  cdsInterface,
 };

@@ -1,14 +1,7 @@
 const { ethers } = require('hardhat');
 const fs = require('fs');
 
-const {
-  ORACLE_ABI,
-  FUSD_ABI,
-  CDSLOUNGE_ABI,
-  CDS_ABI,
-  CDS_BYTECODE,
-  cdsInterface,
-} = require('./abi');
+const { ORACLE_ABI, FUSD_ABI, CDSLOUNGE_ABI, CDS_ABI } = require('./abi');
 
 require('dotenv').config();
 
@@ -213,6 +206,42 @@ module.exports = {
       console.log(tx);
     }
 
+    async cancel(signer, id) {
+      const cdsLounge = new ethers.Contract(
+        this.cdsLounge.address,
+        CDSLOUNGE_ABI,
+        signer,
+      );
+      await cdsLounge.cancel(id);
+    }
+
+    async close(signer, id) {
+      const cdsLounge = new ethers.Contract(
+        this.cdsLounge.address,
+        CDSLOUNGE_ABI,
+        signer,
+      );
+      await cdsLounge.close(id);
+    }
+
+    async expire(signer, id) {
+      const cdsLounge = new ethers.Contract(
+        this.cdsLounge.address,
+        CDSLOUNGE_ABI,
+        signer,
+      );
+      await cdsLounge.expire(id);
+    }
+
+    async claim(signer, id) {
+      const cdsLounge = new ethers.Contract(
+        this.cdsLounge.address,
+        CDSLOUNGE_ABI,
+        signer,
+      );
+      await cdsLounge.claim(id);
+    }
+
     async setPrice(price, asset) {
       await this.oracle.setBTCPrice(price);
       switch (asset) {
@@ -239,7 +268,7 @@ module.exports = {
     }
 
     async inactiveCase(buyer, seller, asset) {
-      state = {
+      const state = {
         BTC: {
           InitAssetPrice: 30000,
           ClaimPrice: 20000,
@@ -277,7 +306,7 @@ module.exports = {
       --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
       `);
       const { cdsId } = await this.create(buyer, seller, state[asset]);
-      await this.cdsLounge.connect(buyer).cancel(cdsId);
+      await this.cancel(buyer, cdsId);
     }
 
     async activeCase(buyer, seller, asset, byDeposit = false) {
@@ -298,10 +327,11 @@ module.exports = {
       - Case of close
       --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
       `);
-      const { cdsId } = await this.create(buyer, seller, state[asset]);
+      const { cdsId } = await this.create(buyer, seller, defaultState[asset]);
       await this.accept(seller, cdsId);
       await this.payPremium(buyer, cdsId);
-      await this.cdsLounge.connect(buyer).close(cdsId);
+
+      await this.close(buyer, cdsId);
     }
 
     async expiredCase(buyer, seller, asset, byDeposit = false) {
@@ -310,7 +340,7 @@ module.exports = {
       --- Buyer: ${buyer.address} / Seller: ${seller.address} / Asset: ${asset}
       `);
 
-      state = defaultState;
+      const state = defaultState;
       state[asset].PremiumRounds = 4;
       const { cdsId } = await this.create(buyer, seller, state[asset]);
       await this.accept(seller, cdsId);
@@ -320,13 +350,13 @@ module.exports = {
         await this.payPremiumByDeposit(seller, cdsId);
         await this.payPremiumByDeposit(seller, cdsId);
 
-        await this.cdsLounge.connect(seller).expire(cdsId);
+        await this.expire(seller, cdsId);
       } else {
         await this.payPremium(buyer, cdsId);
         await this.payPremium(buyer, cdsId);
         await this.payPremium(buyer, cdsId);
 
-        await this.cdsLounge.connect(seller).expire(cdsId);
+        await this.expire(seller, cdsId);
       }
     }
 
@@ -347,7 +377,7 @@ module.exports = {
 
       await this.setPrice(price, asset);
       if (isClaimed) {
-        await this.cdsLounge.connect(buyer).claim(cdsId);
+        await this.claim(buyer, cdsId);
         // set price back to default
         await this.setPrice(defaultState[asset].InitAssetPrice, asset);
       }
