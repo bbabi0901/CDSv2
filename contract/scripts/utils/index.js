@@ -37,7 +37,7 @@ const defaultState = {
     BuyerDeposit: 160,
     AssetType: 2,
   },
-  faucet: 10000000,
+  faucet: 20000000,
 };
 
 const readAddress = (contract) => {
@@ -203,7 +203,6 @@ module.exports = {
 
     async faucet(wallet) {
       const tx = await this.fusd.transfer(wallet.address, defaultState.faucet);
-      console.log(tx);
     }
 
     async cancel(signer, id) {

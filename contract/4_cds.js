@@ -1,6 +1,6 @@
 const hre = require('hardhat');
 
-const { readAddress, defaultState } = require('./utils');
+const { readAddress, defaultState } = require('./scripts/utils');
 
 async function main() {
   try {
