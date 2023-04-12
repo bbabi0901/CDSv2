@@ -342,6 +342,7 @@ module.exports = {
       const state = defaultState;
       state[asset].PremiumRounds = 4;
       const { cdsId } = await this.create(buyer, seller, state[asset]);
+      console.log('Expire', cdsId);
       await this.accept(seller, cdsId);
 
       if (byDeposit) {
@@ -367,10 +368,9 @@ module.exports = {
       `);
 
       const { cdsId } = await this.create(buyer, seller, defaultState[asset]);
+      console.log('Claim', cdsId);
       await this.accept(seller, cdsId);
 
-      await this.payPremium(buyer, cdsId);
-      await this.payPremium(buyer, cdsId);
       await this.payPremium(buyer, cdsId);
       await this.payPremium(buyer, cdsId);
 
