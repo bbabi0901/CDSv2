@@ -33,25 +33,20 @@ async function main() {
       Set FUSD ADDR   :  ${fusdAddr}
     `);
 
-    const beforeFaucet = await cds.fusd.balanceOf(addr1.address);
-
     // faucet
-    await cds.faucet(addr1);
+    // await cds.faucet(addr1);
     // await cds.faucet(addr2);
     // await cds.faucet(addr3);
     // await cds.faucet(addr4);
     // await cds.faucet(addr5);
 
-    const afterFaucet = await cds.fusd.balanceOf(addr1.address);
-    console.log(beforeFaucet, afterFaucet);
-
-    /*
     // Sample cases
     // cases of pending status
-    await pendingCase(addr2, addr1, 'BTC');
-    await pendingCase(addr3, addr1, 'ETH');
-    await pendingCase(addr4, addr1, 'LINK');
+    await cds.pendingCase(addr2, addr1, 'BTC');
+    await cds.pendingCase(addr3, addr1, 'ETH');
+    await cds.pendingCase(addr4, addr1, 'LINK');
 
+    /*
     // active -> accept + payPremium or payPremiumByDeposit
     //  payPremium by buyer
     await activeCase(addr2, addr5, 'BTC');

@@ -2,17 +2,12 @@ const { ethers } = require('hardhat');
 const fs = require('fs');
 
 const {
-  abi: ORACLE_ABI,
-} = require('../../artifacts/contracts/Oracle/PriceOracleMock.sol/PriceOracleMock.json');
-const {
-  abi: FUSD_ABI,
-} = require('../../artifacts/contracts/FUSD.sol/FUSD.json');
-const {
-  abi: CDSLOUNGE_ABI,
-} = require('../../artifacts/contracts/CDSLounge.sol/CDSLounge.json');
-const {
-  bytecode: CDS_BYTECODE,
-} = require('../../artifacts/contracts/CDS/CDS.sol/CDS.json');
+  ORACLE_ABI,
+  FUSD_ABI,
+  CDSLOUNGE_ABI,
+  CDS_BYTECODE,
+  cdsInterface,
+} = require('./abi');
 
 require('dotenv').config();
 
@@ -97,9 +92,6 @@ module.exports = {
     endPoint;
     gasPrice;
     owner;
-    oracle;
-    fusd;
-    cdsLounge;
 
     constructor(owner, endPoint) {
       this.endPoint = endPoint;
@@ -121,6 +113,7 @@ module.exports = {
       // const signer = this.owner.connect(this.provider);
       // Error: cannot alter JSON-RPC Signer connection (operation="connect", code=UNSUPPORTED_OPERATION, version=providers/5.7.2)
       // 132줄 때문에 오류 발생 => 왜냐면 owner가 이미 connect상태라서 connect가 불필요였음.
+
       this.oracle = new ethers.Contract(oracle, ORACLE_ABI, this.owner);
 
       this.fusd = new ethers.Contract(fusd, FUSD_ABI, this.owner);
@@ -128,57 +121,23 @@ module.exports = {
       this.cdsLounge = new ethers.Contract(
         cdsLounge,
         CDSLOUNGE_ABI,
-        this.provider,
+        this.owner,
       );
 
-      const cdsInterface = [
-        'constructor(address _oracle, uint256 _initAssetPrice, uint256 _claimPrice, uint256 _liquidationPrice, uint256 _premium, uint256 _sellerDeposit, uint32 _rounds, uint32 _assetType)',
-
-        'function premiumPaid() external',
-
-        'function accept() external',
-
-        'function cancel() external',
-
-        'function close() external',
-
-        'function claim() external',
-
-        'function checkRoundsZero() external view  returns (bool)',
-
-        'function checkPayDatePassed() external view  returns (bool)',
-
-        'function setInitAssetPrice(uint256 _initAssetPrice) public returns (uint256)',
-
-        'function setStatus(Status _status) private  returns (Status)',
-
-        'function setBuyer(address _buyer) public  returns (address)',
-
-        'function setSeller(address _seller) public  returns (address)',
-
-        'function setRounds(uint32 _rounds) private  returns (uint32)',
-
-        'function setNextPayDate() private  returns (uint256)',
-
-        'function getPrices() public view returns (uint256[5] memory)',
-
-        'function getAmountOfAsset() public view returns (uint256)',
-
-        'function getBuyer() public view returns (address)',
-
-        'function getSeller() public view returns (address)',
-
-        'function getClaimReward() public view returns (uint256)',
-      ];
       const CDS_INTERFACE = new ethers.utils.Interface(cdsInterface);
       this.cdsFactory = new ethers.ContractFactory(CDS_INTERFACE, CDS_BYTECODE);
     }
 
     async create(buyer, seller, data) {
-      await this.fusd
-        .connect(buyer)
-        .approve(this.cdsLoungeAddr, data.BuyerDeposit);
-      const tx = await this.cdsLounge
+      const fusd = new ethers.Contract(this.fusd.address, FUSD_ABI, buyer);
+      const cdsLounge = new ethers.Contract(
+        this.cdsLounge.address,
+        CDSLOUNGE_ABI,
+        buyer,
+      );
+
+      await fusd.approve(this.cdsLounge.address, data.BuyerDeposit);
+      const tx = await cdsLounge
         .connect(buyer)
         .create(
           data.InitAssetPrice,
