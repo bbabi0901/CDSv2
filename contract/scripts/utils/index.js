@@ -5,6 +5,7 @@ const {
   ORACLE_ABI,
   FUSD_ABI,
   CDSLOUNGE_ABI,
+  CDS_ABI,
   CDS_BYTECODE,
   cdsInterface,
 } = require('./abi');
@@ -123,9 +124,6 @@ module.exports = {
         CDSLOUNGE_ABI,
         this.owner,
       );
-
-      const CDS_INTERFACE = new ethers.utils.Interface(cdsInterface);
-      this.cdsFactory = new ethers.ContractFactory(CDS_INTERFACE, CDS_BYTECODE);
     }
 
     async create(buyer, seller, data) {
@@ -156,47 +154,61 @@ module.exports = {
       return { cdsId, cds };
     }
 
-    async accept(seller, id) {
+    async getCDSInstance(signer, id) {
       const cdsAddr = await this.cdsLounge.getCDS(id);
-      const cds = this.cdsFactory.attach(cdsAddr);
+      const cds = new ethers.Contract(cdsAddr, CDS_ABI, signer);
+
+      return cds;
+    }
+
+    async accept(seller, id) {
+      const fusd = new ethers.Contract(this.fusd.address, FUSD_ABI, seller);
+      const cdsLounge = new ethers.Contract(
+        this.cdsLounge.address,
+        CDSLOUNGE_ABI,
+        seller,
+      );
+
+      const cds = await this.getCDSInstance(seller, id);
+
       const sellerDeposit = await cds.sellerDeposit();
 
-      await this.fusd
-        .connect(seller)
-        .approve(this.cdsLounge.address, sellerDeposit);
+      await fusd.approve(this.cdsLounge.address, +sellerDeposit);
 
-      const tx = await this.cdsLounge.connect(seller).accept(id);
+      const tx = await cdsLounge.accept(id);
 
       const receipt = await tx.wait();
       const { cdsId } = receipt.events[3].args;
 
-      return { cdsId, cdsAddr };
+      return { cdsId };
     }
 
     async payPremium(buyer, id) {
-      const cdsAddr = await this.cdsLounge.getCDS(id);
-      const cds = this.cdsFactory.attach(cdsAddr);
+      const fusd = new ethers.Contract(this.fusd.address, FUSD_ABI, buyer);
+      const cdsLounge = new ethers.Contract(
+        this.cdsLounge.address,
+        CDSLOUNGE_ABI,
+        buyer,
+      );
+
+      const cds = await this.getCDSInstance(buyer, id);
+
       const premium = await cds.premium();
 
-      await this.fusd.connect(buyer).approve(this.cdsLounge.address, premium);
-      await this.cdsLounge.connect(buyer).payPremium(id);
+      await fusd.approve(this.cdsLounge.address, +premium);
+      await cdsLounge.payPremium(id);
     }
 
     async payPremiumByDeposit(seller, id) {
-      await this.cdsLounge.connect(seller).payPremiumByDeposit(id);
+      const cdsLounge = new ethers.Contract(
+        this.cdsLounge.address,
+        CDSLOUNGE_ABI,
+        seller,
+      );
+      await cdsLounge.payPremiumByDeposit(id);
     }
 
     async faucet(wallet) {
-      // const signer = wallet.connect(this.provider);
-
-      // const txData = {
-      //   from: wallet.address,
-      //   gasPrice: this.gasPrice,
-      //   // gasLimit: ethers.utils.hexlify(gas_limit), // 100000
-      //   nonce: this.provider.getTransactionCount(wallet.address, 'latest'),
-      // };
-      // const tx = await signer.sendTransaction(txData);
-
       const tx = await this.fusd.transfer(wallet.address, defaultState.faucet);
       console.log(tx);
     }

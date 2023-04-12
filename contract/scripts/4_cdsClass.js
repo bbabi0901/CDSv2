@@ -42,57 +42,57 @@ async function main() {
 
     // Sample cases
     // cases of pending status
-    await cds.pendingCase(addr2, addr1, 'BTC');
-    await cds.pendingCase(addr3, addr1, 'ETH');
-    await cds.pendingCase(addr4, addr1, 'LINK');
+    // await cds.pendingCase(addr2, addr1, 'BTC');
+    // await cds.pendingCase(addr3, addr1, 'ETH');
+    // await cds.pendingCase(addr4, addr1, 'LINK');
 
-    /*
     // active -> accept + payPremium or payPremiumByDeposit
     //  payPremium by buyer
-    await activeCase(addr2, addr5, 'BTC');
-    await activeCase(addr5, addr4, 'ETH');
-    await activeCase(addr2, addr3, 'LINK');
+    await cds.activeCase(addr2, addr5, 'BTC');
+    await cds.activeCase(addr5, addr4, 'ETH');
+    await cds.activeCase(addr2, addr3, 'LINK');
 
     // payPremiumByDeposit by seller
-    await activeCase(addr1, addr5, 'BTC', true);
-    await activeCase(addr1, addr4, 'ETH', true);
-    await activeCase(addr1, addr3, 'LINK', true);
+    await cds.activeCase(addr1, addr5, 'BTC', true);
+    await cds.activeCase(addr1, addr4, 'ETH', true);
+    await cds.activeCase(addr1, addr3, 'LINK', true);
 
+    /*
     // inactive -> cancel
 
-    await inactiveCase(addr3, addr2, 'BTC');
-    await inactiveCase(addr3, addr2, 'LINK');
-    await inactiveCase(addr3, addr2, 'ETH');
+    await cds.inactiveCase(addr3, addr2, 'BTC');
+    await cds.inactiveCase(addr3, addr2, 'LINK');
+    await cds.inactiveCase(addr3, addr2, 'ETH');
 
     // expired -> close, expired by rounds / deposit
-    await closeCase(addr4, addr3, 'BTC');
-    await closeCase(addr2, addr1, 'ETH');
-    await closeCase(addr1, addr5, 'LINK');
+    await cds.closeCase(addr4, addr3, 'BTC');
+    await cds.closeCase(addr2, addr1, 'ETH');
+    await cds.closeCase(addr1, addr5, 'LINK');
 
     // by deposit
-    await expiredCase(addr4, addr3, 'BTC', true);
-    await expiredCase(addr1, addr4, 'ETH', true);
-    await expiredCase(addr1, addr4, 'LINK', true);
+    await cds.expiredCase(addr4, addr3, 'BTC', true);
+    await cds.expiredCase(addr1, addr4, 'ETH', true);
+    await cds.expiredCase(addr1, addr4, 'LINK', true);
 
     // by rounds
-    await expiredCase(addr2, addr1, 'BTC', false);
-    await expiredCase(addr3, addr1, 'ETH', false);
-    await expiredCase(addr4, addr5, 'LINK', false);
+    await cds.expiredCase(addr2, addr1, 'BTC', false);
+    await cds.expiredCase(addr3, addr1, 'ETH', false);
+    await cds.expiredCase(addr4, addr5, 'LINK', false);
 
     // claimed, liquidation, claimable
     // claim
-    await claimCase(addr1, addr2, 'BTC', 21000, true);
-    await claimCase(addr5, addr2, 'ETH', 1300, true);
-    await claimCase(addr1, addr5, 'LINK', 7, true);
+    await cds.claimCase(addr1, addr2, 'BTC', 21000, true);
+    await cds.claimCase(addr5, addr2, 'ETH', 1300, true);
+    await cds.claimCase(addr1, addr5, 'LINK', 7, true);
 
     // liquidate
-    await claimCase(addr3, addr4, 'BTC', 19000, true);
-    await claimCase(addr3, addr4, 'ETH', 1100, true);
-    await claimCase(addr4, addr1, 'LINK', 5, true);
+    await cds.claimCase(addr3, addr4, 'BTC', 19000, true);
+    await cds.claimCase(addr3, addr4, 'ETH', 1100, true);
+    await cds.claimCase(addr4, addr1, 'LINK', 5, true);
 
     // claimable
-    await claimCase(addr5, addr3, 'BTC', 21000, false);
-    await claimCase(addr5, addr3, 'ETH', 1400, false);
+    await cds.claimCase(addr5, addr3, 'BTC', 21000, false);
+    await cds.claimCase(addr5, addr3, 'ETH', 1400, false);
     */
   } catch (error) {
     console.log(error);

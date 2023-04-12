@@ -8,11 +8,14 @@ const {
   abi: CDSLOUNGE_ABI,
 } = require('../../artifacts/contracts/CDSLounge.sol/CDSLounge.json');
 const {
+  abi: CDS_ABI,
   bytecode: CDS_BYTECODE,
 } = require('../../artifacts/contracts/CDS/CDS.sol/CDS.json');
 
 const cdsInterface = [
   'constructor(address _oracle, uint256 _initAssetPrice, uint256 _claimPrice, uint256 _liquidationPrice, uint256 _premium, uint256 _sellerDeposit, uint32 _rounds, uint32 _assetType)',
+
+  'function sellerDeposit() public returns(uint256)',
 
   'function premiumPaid() external',
 
@@ -55,6 +58,7 @@ module.exports = {
   ORACLE_ABI,
   FUSD_ABI,
   CDSLOUNGE_ABI,
+  CDS_ABI,
   CDS_BYTECODE,
   cdsInterface,
 };
