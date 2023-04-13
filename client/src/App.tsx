@@ -1,6 +1,6 @@
 // modules
 import React, { useState } from 'react';
-import { Layout } from 'antd';
+import { Layout, Space } from 'antd';
 
 // styles
 import { styles } from './assets/styles/styles';
@@ -12,35 +12,37 @@ import Sidebar from './components/Sidebar/Sidebar';
 
 const { Content, Footer } = Layout;
 
-function App() {
+const App: React.FC = () => {
   return (
-    <Layout
-      className="layout"
-      style={{
-        height: '100%',
-        background: `linear-gradient(${styles.main_theme}, ${styles.white} )`,
-        color: `${styles.very_dark_blue_line}`,
-        gap: `${styles.space_8}`,
-      }}
-    >
-      <Header />
-      <Sidebar />
-      <Content
+    <Space direction="vertical" style={{ width: '100%' }}>
+      <Layout
+        className="layout"
         style={{
-          padding: '0 50px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: `${styles.space_9}`,
+          height: '100%',
+          background: `linear-gradient(${styles.main_theme}, ${styles.white} )`,
+          color: `${styles.very_dark_blue_line}`,
+          gap: `${styles.space_8}`,
         }}
-        className="site-layout-content"
       >
-        <Router />
-      </Content>
-      <Footer style={{ textAlign: 'center' }}>
-        Ant Design ©2023 Created by Ant UED
-      </Footer>
-    </Layout>
+        <Header />
+        <Sidebar />
+        <Content
+          style={{
+            padding: '0 50px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${styles.space_9}`,
+          }}
+          className="site-layout-content"
+        >
+          <Router />
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>
+          Ant Design ©2023 Created by Ant UED
+        </Footer>
+      </Layout>
+    </Space>
   );
-}
+};
 
 export default App;

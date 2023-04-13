@@ -4,6 +4,7 @@ import { useRecoilState } from 'recoil';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import { Contract } from 'web3-eth-contract';
+import { Col, Row } from 'antd';
 
 // atoms
 import { walletState, IWalletTypes } from '../../atoms/Atoms';

@@ -1,8 +1,15 @@
 // modules
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Col, Row } from 'antd';
 
-const Market = () => {
-  return <div>Market</div>;
+const Market: React.FC = () => {
+  return (
+    <Row justify="center" align="middle">
+      <Col span={24}>
+        <div>Market</div>
+      </Col>
+    </Row>
+  );
 };
 
 export default Market;

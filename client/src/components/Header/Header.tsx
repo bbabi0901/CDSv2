@@ -1,4 +1,5 @@
 // modules
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -12,7 +13,6 @@ import { Layout, Menu as _Menu, Row, Col } from 'antd';
 import styled from 'styled-components';
 import { styles } from '../../assets/styles/styles';
 import type { MenuProps } from 'antd';
-// import styles from './Nav.module.css';
 
 const { Header: _Header } = Layout;
 
@@ -43,7 +43,7 @@ const items: MenuItem[] = [
   getItem('', 'wallet', <WalletOutlined />),
 ];
 
-const Nav = () => {
+const Nav: React.FC = () => {
   // search
   const [search, setSearch] = useState('');
   const handleSearch: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -71,8 +71,6 @@ const Nav = () => {
   };
 
   return (
-    // <Row justify="center" align="middle">
-    //   <Col span={24}>
     <Header>
       <Row wrap={false} justify={'space-between'} align="middle">
         <Col xs={{ span: 3, pull: 2 }} xl={{ span: 4, pull: 0 }}>
@@ -99,11 +97,12 @@ const Nav = () => {
         </Col>
       </Row>
     </Header>
-    //   </Col>
-    // </Row>
   );
 };
 
+// z-index: z축 순서.
+// a: element for link. 링크에는 (더 세부적으로 들어갈 수도 있지만) 크게 link, visited, hover, active, focus 상태가 있다.
+// link - href가 명시됨. visited - 클릭해봄. active - 좌클릭하고 있음, hover - 마우스 포인터가 위에 위치함, focus - 키보드 포커스가 위치함
 const Header = styled(_Header)`
   background-color: ${styles.main_theme};
   color: ${styles.main_theme};

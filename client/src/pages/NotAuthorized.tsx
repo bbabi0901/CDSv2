@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Result } from 'antd';
 import { Link } from 'react-router-dom';
 
-const NotAuthorized = () => {
+const NotAuthorized: React.FC = () => {
   return (
     <Result
       status="403"

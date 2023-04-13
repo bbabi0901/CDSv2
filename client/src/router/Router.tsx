@@ -17,7 +17,7 @@ import NotFound from '../pages/NotFound';
 // abi
 import { cdsLoungeAbi, cdsLoungeAddress } from '../utils/abi/cdsLounge';
 
-function Router() {
+const Router: React.FC = () => {
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [cdsLounge, setCdsLounge] = useState<Contract | null>(null);
   useEffect(() => {
@@ -30,6 +30,7 @@ function Router() {
     );
     setCdsLounge(contract);
   }, []);
+
   return (
     <Routes>
       <Route path={'/'} element={<Home />} />
@@ -44,6 +45,6 @@ function Router() {
       <Route path={'/*'} element={<NotFound />} />
     </Routes>
   );
-}
+};
 
 export default Router;

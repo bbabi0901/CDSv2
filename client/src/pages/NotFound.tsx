@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Result } from 'antd';
 import { Link } from 'react-router-dom';
 
-function NotFound() {
+const NotFound: React.FC = () => {
   return (
     <Result
       status="404"
@@ -16,6 +16,6 @@ function NotFound() {
       }
     />
   );
-}
+};
 
 export default NotFound;
