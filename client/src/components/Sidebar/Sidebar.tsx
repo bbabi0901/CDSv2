@@ -18,9 +18,16 @@ const { Sider } = Layout;
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useRecoilState(collapsedState);
   const [wallet, setWallet] = useRecoilState(walletState);
-
+  const mouseLeaveHandler: React.MouseEventHandler<HTMLDivElement> = () => {
+    setCollapsed(true);
+  };
+  /*
+  MouseOver/Out : 지정된 태그 요소(혹은 자신)는 물론이며, 자식 요소가 있다면 해당 자식요소의 영역까지 포함됨
+  MouseEnter/Leave : 지정된 태그 요소(혹은 자신)의 영역에만 해당되며, 만약 자식요소가 있다면 해당 자식요소의 영역은 제외됨
+  */
   return (
     <Sider
+      onMouseLeave={mouseLeaveHandler}
       collapsible
       collapsed={collapsed}
       collapsedWidth={0}
@@ -36,16 +43,13 @@ const Sidebar = () => {
         height: '100vh',
       }}
     >
-      <SidebarWrapper>
-        {wallet.isLinked ? (
-          <Linked wallet={wallet} />
-        ) : (
-          <NotLinked wallet={wallet} setWallet={setWallet} />
-        )}
-      </SidebarWrapper>
+      {wallet.isLinked ? (
+        <Linked wallet={wallet} />
+      ) : (
+        <NotLinked wallet={wallet} setWallet={setWallet} />
+      )}
     </Sider>
   );
 };
 
-const SidebarWrapper = styled.div``;
 export default Sidebar;
