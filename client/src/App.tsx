@@ -25,7 +25,6 @@ const App: React.FC = () => {
         }}
       >
         <Header />
-        <Sidebar />
         <Content
           style={{
             padding: '0 50px',
@@ -41,6 +40,7 @@ const App: React.FC = () => {
           Ant Design ©2023 Created by Ant UED
         </Footer>
       </Layout>
+      <Sidebar />
     </Space>
   );
 };

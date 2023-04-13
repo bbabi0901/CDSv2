@@ -13,7 +13,7 @@ const Accept: React.FC = () => {
   return (
     <Row justify="center" align="middle">
       <Col span={24}>
-        <div>Create</div>
+        <div>Accept</div>
       </Col>
     </Row>
   );

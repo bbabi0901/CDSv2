@@ -63,32 +63,36 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   }, [wallet]);
 
   return (
-    <div>
-      <div>MyPage</div>
-      {wallet.isLinked ? (
+    <Row justify="center" align="middle">
+      <Col span={24}>
         <div>
-          <div>{wallet.address}</div>
-          <div>
-            <ul>
-              {cdsDetails.length !== 0
-                ? cdsDetails.map((detail) => {
-                    return (
-                      <li key={`${detail.address}${detail.prices[0]}`}>
-                        <CDSCard
-                          address={detail.address}
-                          prices={detail.prices}
-                        />
-                      </li>
-                    );
-                  })
-                : ''}
-            </ul>
-          </div>
+          <div>MyPage</div>
+          {wallet.isLinked ? (
+            <div>
+              <div>{wallet.address}</div>
+              <div>
+                <ul>
+                  {cdsDetails.length !== 0
+                    ? cdsDetails.map((detail) => {
+                        return (
+                          <li key={`${detail.address}${detail.prices[0]}`}>
+                            <CDSCard
+                              address={detail.address}
+                              prices={detail.prices}
+                            />
+                          </li>
+                        );
+                      })
+                    : ''}
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <NotAuthorized />
+          )}
         </div>
-      ) : (
-        <NotAuthorized />
-      )}
-    </div>
+      </Col>
+    </Row>
   );
 };
 

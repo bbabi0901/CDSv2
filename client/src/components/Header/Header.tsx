@@ -9,12 +9,13 @@ import { collapsedState } from '../../atoms/Atoms';
 
 // styles
 import { WalletOutlined } from '@ant-design/icons';
-import { Layout, Menu as _Menu, Row, Col } from 'antd';
+import { Layout, Menu as _Menu, Row, Col, Input, Form } from 'antd';
 import styled from 'styled-components';
 import { styles } from '../../assets/styles/styles';
 import type { MenuProps } from 'antd';
 
 const { Header: _Header } = Layout;
+const { Search: _Search } = Input;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -51,9 +52,14 @@ const Nav: React.FC = () => {
   };
 
   const navigate = useNavigate();
-  const submitHandler: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const submitHandler: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     e.preventDefault();
     navigate(`/search/${search}`);
+    setSearch('');
+  };
+
+  const searchHandler = (value: string) => {
+    navigate(`/search/${value}`);
     setSearch('');
   };
 
@@ -61,7 +67,7 @@ const Nav: React.FC = () => {
   const [collapsed, setCollapsed] = useRecoilState(collapsedState);
 
   // menu
-  const onClick: MenuProps['onClick'] = (e) => {
+  const onMenuClick: MenuProps['onClick'] = (e) => {
     if (e.key === 'wallet') {
       setCollapsed(!collapsed);
       return;
@@ -72,27 +78,30 @@ const Nav: React.FC = () => {
 
   return (
     <Header>
-      <Row wrap={false} justify={'space-between'} align="middle">
-        <Col xs={{ span: 3, pull: 2 }} xl={{ span: 4, pull: 0 }}>
-          <Link to="/">Home</Link>
+      <Row
+        wrap={false}
+        justify={'space-between'}
+        align="middle"
+        gutter={{ md: 24 }}
+      >
+        <Col md={3}>
+          <Link to="/">HomeHome</Link>
         </Col>
-        <Col>
-          <div>
-            <form onSubmit={submitHandler}>
-              <input
-                value={search}
-                onChange={handleSearch}
-                placeholder="Enter contracts / accounts address..."
-              />
-            </form>
-          </div>
+        <Col md={12}>
+          <Search
+            size="large"
+            value={search}
+            onSearch={searchHandler}
+            onChange={handleSearch}
+            placeholder="Enter contracts / accounts address..."
+          />
         </Col>
-        <Col>
+        <Col md={{ span: 6 }}>
           <Menu
             mode="horizontal"
             style={{ justifyContent: 'flex-end' }}
             items={items}
-            onClick={onClick}
+            onClick={onMenuClick}
           />
         </Col>
       </Row>
@@ -118,6 +127,11 @@ const Header = styled(_Header)`
 const Menu = styled(_Menu)`
   background-color: ${styles.main_theme};
   color: ${styles.very_dark_blue_line};
+  margin: 0 5%;
+`;
+
+const Search = styled(_Search)`
+  margin-top: 10px;
 `;
 
 export default Nav;

@@ -1,6 +1,7 @@
 // modules
 import React from 'react';
 import { useRecoilState } from 'recoil';
+import styled from 'styled-components';
 
 // styles
 import { Layout, List as _List } from 'antd';
@@ -35,13 +36,16 @@ const Sidebar = () => {
         height: '100vh',
       }}
     >
-      {wallet.isLinked ? (
-        <Linked wallet={wallet} />
-      ) : (
-        <NotLinked wallet={wallet} setWallet={setWallet} />
-      )}
+      <SidebarWrapper>
+        {wallet.isLinked ? (
+          <Linked wallet={wallet} />
+        ) : (
+          <NotLinked wallet={wallet} setWallet={setWallet} />
+        )}
+      </SidebarWrapper>
     </Sider>
   );
 };
 
+const SidebarWrapper = styled.div``;
 export default Sidebar;
