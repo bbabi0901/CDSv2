@@ -1,28 +1,51 @@
 // modules
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Card as _Card, List } from 'antd';
 
-type Props = {
-  address: string;
-  prices: string[];
-};
+// styles
+import styled from 'styled-components';
+import { styles } from '../../assets/styles/styles';
 
-const CDSCard: React.FC<Props> = ({ address, prices }) => {
+import { ICardProps } from '../../pages/MyPage/MyPage';
+
+const { Meta } = _Card;
+
+const CDSCard: React.FC<ICardProps> = (detail) => {
+  let imgSrc;
+  switch (detail.asset) {
+    case 'BTC':
+      imgSrc = styles.card_BTC;
+      break;
+    case 'ETH':
+      imgSrc = styles.card_ETH;
+      break;
+    case 'LINK':
+      imgSrc = styles.card_LINK;
+      break;
+    default:
+      break;
+  }
+  const cardClickHandler: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    // console.log(e);
+  };
   return (
-    <Link to={`/search/${address}`}>
-      <div>
-        <div>-----</div>
-        <div>{address}</div>
-        <div>{prices[0]}</div>
-        <div>{prices[1]}</div>
-        <div>{prices[2]}</div>
-        <div>{prices[3]}</div>
-        <div>{prices[4]}</div>
-        <div>-----</div>
-      </div>
-    </Link>
+    <Card
+      hoverable
+      style={{ width: 240 }}
+      cover={<img alt="asset_type_card" src={imgSrc} />}
+      onClick={cardClickHandler}
+    >
+      <Meta
+        title={detail.address}
+        description={detail.isBuyer ? 'Buyer' : 'Seller'}
+      />
+      <Meta description={detail.status} />
+    </Card>
   );
 };
+
+const Card = styled(_Card)``;
 
 export default CDSCard;
 

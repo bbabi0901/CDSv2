@@ -3,16 +3,17 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useRecoilState } from 'recoil';
+import { Layout, Menu as _Menu, Row, Col, Input, Form } from 'antd';
+import type { MenuProps } from 'antd';
 
 // atoms
 import { collapsedState } from '../../atoms/Atoms';
 
 // styles
 import { WalletOutlined } from '@ant-design/icons';
-import { Layout, Menu as _Menu, Row, Col, Input, Form } from 'antd';
+
 import styled from 'styled-components';
 import { styles } from '../../assets/styles/styles';
-import type { MenuProps } from 'antd';
 
 const { Header: _Header } = Layout;
 const { Search: _Search } = Input;
@@ -52,11 +53,11 @@ const Nav: React.FC = () => {
   };
 
   const navigate = useNavigate();
-  const submitHandler: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-    e.preventDefault();
-    navigate(`/search/${search}`);
-    setSearch('');
-  };
+  // const submitHandler: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+  //   e.preventDefault();
+  //   navigate(`/search/${search}`);
+  //   setSearch('');
+  // };
 
   const searchHandler = (value: string) => {
     navigate(`/search/${value}`);
@@ -121,12 +122,12 @@ const Header = styled(_Header)`
   a:active,
   a:hover {
     text-decoration: none;
-    color: ${styles.very_dark_blue_line};
+    color: ${styles.white};
   }
 `;
 const Menu = styled(_Menu)`
   background-color: ${styles.main_theme};
-  color: ${styles.very_dark_blue_line};
+  color: ${styles.white};
   margin: 0 5%;
 `;
 

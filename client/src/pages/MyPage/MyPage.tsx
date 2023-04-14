@@ -12,6 +12,7 @@ import { walletState, IWalletTypes } from '../../atoms/Atoms';
 // components
 import NotAuthorized from '../NotAuthorized';
 import CDSCard from '../../components/CDS/CDSCard';
+import Swiper from '../../components/CDS/Swiper';
 
 // abi
 import { cdsAbi } from '../../utils/abi/cds';
@@ -20,15 +21,23 @@ type MyPageProps = {
   web3: Web3 | null;
   cdsLounge: Contract | null;
 };
-type DetailProps = {
+
+export interface ICardProps {
   address: string;
-  prices: string[];
-};
+  isBuyer: boolean;
+  status: string;
+  asset: string;
+}
+
 const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   const [wallet, setWallet] = useRecoilState<IWalletTypes>(walletState);
 
   const [ownedCDS, setOwnedCDS] = useState<string[]>([]);
-  const [cdsDetails, setCdsDetails] = useState<DetailProps[]>([]);
+  const [contracts, setContracts] = useState<ICardProps[]>([]);
+  const [filteredContracts, setFilteredContracts] = useState<ICardProps[]>([]);
+
+  const status = ['inactive', 'pending', 'active', 'claimed', 'expired'];
+  const assetType = ['BTC', 'ETH', 'LINK'];
 
   const getOwenedCDS = async () => {
     if (cdsLounge && web3) {
@@ -39,23 +48,29 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
 
       for (let i = 0; i < res.length; i++) {
         const cds = new web3.eth.Contract(cdsAbi as AbiItem[], res[i]);
-        const prices = await cds.methods
-          .getPrices()
+        const buyer = await cds.methods
+          .getBuyer()
+          .call({ from: wallet.address });
+        const statusIdx = await cds.methods
+          .status()
+          .call({ from: wallet.address });
+        const assetTypeIdx = await cds.methods
+          .assetType()
           .call({ from: wallet.address });
         const detail = {
           address: res[i],
-          prices: prices,
+          isBuyer: buyer.toLowerCase() === wallet.address,
+          status: status[statusIdx],
+          asset: assetType[assetTypeIdx],
         };
-        setCdsDetails((prev) => {
+        setContracts((prev) => {
           return prev.concat(detail);
         });
       }
     }
   };
 
-  // card에 또 필요한거 assetType.
-  // assetType에 따라 card image 다르게
-  // 카드 클릭하면 search/{address} 로 이동
+  // 카드 클릭하면 search/{address} 로 이동 => detail
   // cds 관련 hook 있으면 좋을듯
 
   useEffect(() => {
@@ -63,29 +78,25 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   }, [wallet]);
 
   return (
-    <Row justify="center" align="middle">
-      <Col span={24}>
+    <Row justify="center" align="middle" gutter={{ md: 24 }}>
+      <Col md={24}>
         <div>
           <div>MyPage</div>
           {wallet.isLinked ? (
             <div>
               <div>{wallet.address}</div>
-              <div>
+              {/* <div>
                 <ul>
-                  {cdsDetails.length !== 0
-                    ? cdsDetails.map((detail) => {
+                  {contracts.length !== 0
+                    ? contracts.map((detail) => {
                         return (
-                          <li key={`${detail.address}${detail.prices[0]}`}>
-                            <CDSCard
-                              address={detail.address}
-                              prices={detail.prices}
-                            />
-                          </li>
+                          <CDSCard key={`${detail.address}`} {...detail} />
                         );
                       })
                     : ''}
                 </ul>
-              </div>
+              </div> */}
+              <Swiper contracts={contracts} />
             </div>
           ) : (
             <NotAuthorized />

@@ -1,4 +1,12 @@
 export const styles = {
+  /* 
+  Media query
+  @media only all and (조건문) {실행문} 으로 동작.
+  only: 미디어 쿼리를 지원하는 사용자 에이전트만 미디어 쿼리 구문을 해석하라는 명령이며 생략 가능.
+  all: 미디어 쿼리를 해석해야 할 대상 미디어를 선언.
+  and: 논리적으로 ‘AND’ 연산을 수행
+  아래의 조건문은 사용자 해상도에 관한 조건문
+  */
   mobile: '@media all and (max-width: 480px)',
   tablet: '@media all and (min-width:480px) and (max-width:1200px)',
   laptop: '@media all and (min-width: 1200px)',
@@ -11,9 +19,9 @@ export const styles = {
   very_dark_blue_main: 'hsl(217, 54%, 11%)',
   very_dark_blue_sub: 'hsl(216, 50%, 16%)',
   very_dark_blue_line: 'hsl(215, 32%, 27%)',
-  main_theme: 'hsl(60, 19%, 86%)',
-  main_theme_darker: 'hsl(60, 17%, 77%)',
-  main_theme_darkest: 'hsl(60, 17%, 20%)',
+  main_theme: 'hsl(219, 27%, 20%)',
+  main_theme_lighter: 'hsl(219, 26%, 46%)',
+  main_theme_darker: 'hsl(241, 23%, 11%)',
 
   /* Typography */
   fw_500: 500,
@@ -81,4 +89,9 @@ export const styles = {
   radius_16: '40px',
   radius_17: '50px',
   radius_18: '60px',
+
+  /* Image */
+  card_BTC: require('../../assets/img/BTC_Card_bg.jpeg'),
+  card_ETH: require('../../assets/img/ETH_Card_bg.jpg'),
+  card_LINK: require('../../assets/img/LINK_Card_bg.png'),
 };
