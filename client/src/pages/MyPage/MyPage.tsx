@@ -4,7 +4,7 @@ import { useRecoilState } from 'recoil';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import { Contract } from 'web3-eth-contract';
-import { Col, Row, Avatar, Radio, RadioChangeEvent } from 'antd';
+import { Col, Row, Avatar, Radio, RadioChangeEvent, Space } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
@@ -41,9 +41,12 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   const [sellerContracts, setSellerContracts] = useState<ICardProps[]>([]);
   const [buyerContracts, setBuyerContracts] = useState<ICardProps[]>([]);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
-
-  const [filter, setFilter] = useState<string>('active');
-  const [filtered, setFiltered] = useState<ICardProps[]>([]);
+  const [filter, setFilter] = useState({
+    isBuyer: true,
+    asset: 'BTC',
+    status: 'active',
+  });
+  const [filteredContracts, setFilteredContracts] = useState<ICardProps[]>([]);
 
   const status = ['inactive', 'pending', 'active', 'claimed', 'expired'];
   const assetType = ['BTC', 'ETH', 'LINK'];
@@ -95,17 +98,56 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
     }
   };
 
+  const getFilteredCDS = () => {
+    if (filter.isBuyer) {
+      const filtered = buyerContracts
+        .filter((contract) => {
+          return contract.asset === filter.asset;
+        })
+        .filter((contract) => {
+          return contract.status === filter.status;
+        });
+      setFilteredContracts(filtered);
+    } else {
+      const filtered = sellerContracts
+        .filter((contract) => {
+          return contract.asset === filter.asset;
+        })
+        .filter((contract) => {
+          return contract.status === filter.status;
+        });
+      setFilteredContracts(filtered);
+      setLoading(false);
+      console.log(filtered, filter);
+    }
+  };
+
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
   };
 
-  const handleFilter = (e: RadioChangeEvent) => {
-    setFilter(e.target.value);
+  const handlePosition = (e: RadioChangeEvent) => {
+    setFilter((prev) => {
+      return { ...prev, isBuyer: e.target.value };
+    });
+  };
+
+  const handleAsset = (e: RadioChangeEvent) => {
+    setFilter((prev) => {
+      return { ...prev, asset: e.target.value };
+    });
+  };
+
+  const handleStatus = (e: RadioChangeEvent) => {
+    setFilter((prev) => {
+      return { ...prev, status: e.target.value };
+    });
   };
 
   useEffect(() => {
     getOwenedCDS();
-  }, [wallet]);
+    getFilteredCDS();
+  }, []);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -115,12 +157,8 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   }, []);
 
   useEffect(() => {
-    const contractsFiltered = buyerContracts.filter((contract) => {
-      return contract.status === filter;
-    });
-    console.log(filter, contractsFiltered);
-    setFiltered(contractsFiltered);
-  }, [filter, buyerContracts]);
+    getFilteredCDS();
+  }, []);
 
   return (
     <Row justify="center" align="middle" gutter={{ md: 24 }}>
@@ -142,16 +180,33 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
               </span>
             </Profile>
 
-            <Position>
-              <span>Buyer</span>
-            </Position>
-            <Radio.Group value={filter} onChange={handleFilter}>
-              <Radio.Button value="inactive">Inactive</Radio.Button>
-              <Radio.Button value="pending">Pending</Radio.Button>
-              <Radio.Button value="active">Acitve</Radio.Button>
-              <Radio.Button value="claimed">Claimed</Radio.Button>
-              <Radio.Button value="expired">Expired</Radio.Button>
-            </Radio.Group>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Radio.Group value={filter.isBuyer} onChange={handlePosition}>
+                <Radio.Button value={true}>Buyer</Radio.Button>
+                <Radio.Button value={false}>Seller</Radio.Button>
+              </Radio.Group>
+
+              <Radio.Group value={filter.asset} onChange={handleAsset}>
+                <Radio.Button value="BTC">BTC</Radio.Button>
+                <Radio.Button value="ETH">ETH</Radio.Button>
+                <Radio.Button value="LINK">LINK</Radio.Button>
+              </Radio.Group>
+
+              <Radio.Group
+                name="status"
+                value={filter.status}
+                onChange={handleStatus}
+              >
+                <Radio.Button value="inactive">Inactive</Radio.Button>
+                <Radio.Button value="pending">Pending</Radio.Button>
+                <Radio.Button value="active">Acitve</Radio.Button>
+                <Radio.Button value="claimed">Claimed</Radio.Button>
+                <Radio.Button value="expired">Expired</Radio.Button>
+              </Radio.Group>
+            </Space>
+
+            <div>{filter.asset}</div>
+            <div>{filter.status}</div>
 
             <Swiper contracts={buyerContracts} windowWidth={windowWidth} />
           </>
