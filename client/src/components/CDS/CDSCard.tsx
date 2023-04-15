@@ -1,7 +1,7 @@
 // modules
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card as _Card, List } from 'antd';
+import { Card as _Card } from 'antd';
 
 // styles
 import styled from 'styled-components';
@@ -11,9 +11,9 @@ import { ICardProps } from '../../pages/MyPage/MyPage';
 
 const { Meta } = _Card;
 
-const CDSCard: React.FC<ICardProps> = (detail) => {
+const CDSCard: React.FC<ICardProps> = (contract) => {
   let imgSrc;
-  switch (detail.asset) {
+  switch (contract.asset) {
     case 'BTC':
       imgSrc = styles.card_BTC;
       break;
@@ -28,20 +28,21 @@ const CDSCard: React.FC<ICardProps> = (detail) => {
   }
   const cardClickHandler: React.MouseEventHandler<HTMLDivElement> = (e) => {
     // console.log(e);
+    console.log(e);
   };
+
   return (
-    <Card
-      hoverable
-      style={{ width: 240 }}
-      cover={<img alt="asset_type_card" src={imgSrc} />}
-      onClick={cardClickHandler}
-    >
-      <Meta
-        title={detail.address}
-        description={detail.isBuyer ? 'Buyer' : 'Seller'}
-      />
-      <Meta description={detail.status} />
-    </Card>
+    <div>{contract.address}</div>
+    // <Card
+    //   key={contract.address}
+    //   hoverable
+    //   style={{ width: 240 }}
+    //   cover={<img alt="asset_type_card" src={imgSrc} />}
+    //   onClick={cardClickHandler}
+    // >
+    //   <Meta title={contract.address} description={contract.claimPrice} />
+    //   <Meta description={contract.status} />
+    // </Card>
   );
 };
 

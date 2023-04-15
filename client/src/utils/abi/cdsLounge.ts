@@ -514,5 +514,5 @@ let cdsLoungeAbi = [
     type: 'function',
   },
 ];
-let cdsLoungeAddress = '0x1c85638e118b37167e9298c2268758e058DdfDA0';
+let cdsLoungeAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
 export { cdsLoungeAbi, cdsLoungeAddress };
