@@ -27,40 +27,27 @@ const CDSCard: React.FC<ICardProps> = (contract) => {
       break;
   }
   const cardClickHandler: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    // console.log(e);
-    console.log(e);
+    console.log(e.target);
   };
+  useEffect(() => {
+    console.log(contract);
+  }, []);
 
   return (
-    <div>{contract.address}</div>
-    // <Card
-    //   key={contract.address}
-    //   hoverable
-    //   style={{ width: 240 }}
-    //   cover={<img alt="asset_type_card" src={imgSrc} />}
-    //   onClick={cardClickHandler}
-    // >
-    //   <Meta title={contract.address} description={contract.claimPrice} />
-    //   <Meta description={contract.status} />
-    // </Card>
+    <Link to={`/search/${contract.address}`}>
+      <Card
+        key={contract.address}
+        hoverable
+        cover={<img alt="asset_type_card" src={imgSrc} height={150} />}
+        onClick={cardClickHandler}
+      >
+        <Meta title={contract.address} description={contract.claimPrice} />
+        <Meta description={contract.status} />
+      </Card>
+    </Link>
   );
 };
 
 const Card = styled(_Card)``;
 
 export default CDSCard;
-
-/*
-
-cds contract는
-card에는 간략한 인포만 있으면 되서 필요없고 (얘는 props로 data만 건내주고 클릭하면 search/{addredss}로 이동하도록)
-아마 search 페이지에서 필요할듯 address 가지고 자세한 정보
-
-cds lounge contract는
-create, accept에서
-
-market에서는 pending인거만 다룰거고
-이거는 온체인 데이터와 관련 x
-작성한거 오퍼 => 참여 되면 state 그대로 create로 가져오도록
-
-*/

@@ -17,7 +17,7 @@ import { walletState, IWalletTypes } from '../../atoms/Atoms';
 
 // components
 import NotAuthorized from '../NotAuthorized';
-import Swiper from '../../components/CDS/Swiper';
+import CardList from '../../components/CDS/CardList';
 
 // abi
 import { cdsAbi } from '../../utils/abi/cds';
@@ -29,6 +29,7 @@ type MyPageProps = {
 
 export interface ICardProps {
   address: string;
+  isBuyer: boolean;
   status: string;
   asset: string;
   claimPrice: number;
@@ -38,9 +39,8 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   const [wallet, setWallet] = useRecoilState<IWalletTypes>(walletState);
   const [loading, setLoading] = useState<boolean>(true);
   const [ownedCDS, setOwnedCDS] = useState<string[]>([]);
-  const [sellerContracts, setSellerContracts] = useState<ICardProps[]>([]);
-  const [buyerContracts, setBuyerContracts] = useState<ICardProps[]>([]);
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+
+  const [contractDetails, setContractDetails] = useState<ICardProps[]>([]);
   const [filter, setFilter] = useState({
     isBuyer: true,
     asset: 'BTC',
@@ -59,6 +59,7 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
           .call({ from: wallet.address });
         setOwnedCDS(res);
 
+        const contracts: ICardProps[] = [];
         for (let i = 0; i < res.length; i++) {
           const cds = new web3.eth.Contract(cdsAbi as AbiItem[], res[i]);
           const buyer = await cds.methods
@@ -76,22 +77,15 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
 
           const detail = {
             address: res[i],
+            isBuyer: buyer.toLowerCase() === wallet.address,
             status: status[statusIdx],
             asset: assetType[assetTypeIdx],
             claimPrice: +claimPrice,
           };
-
-          if (buyer.toLowerCase() === wallet.address) {
-            setBuyerContracts((prev) => {
-              return prev.concat(detail);
-            });
-          } else {
-            setSellerContracts((prev) => {
-              return prev.concat(detail);
-            });
-          }
+          setContractDetails((prev) => {
+            return prev.concat(detail);
+          });
         }
-        setLoading(false);
       }
     } catch (error) {
       console.log(error);
@@ -99,31 +93,27 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   };
 
   const getFilteredCDS = () => {
-    if (filter.isBuyer) {
-      const filtered = buyerContracts
-        .filter((contract) => {
-          return contract.asset === filter.asset;
-        })
-        .filter((contract) => {
-          return contract.status === filter.status;
-        });
-      setFilteredContracts(filtered);
-    } else {
-      const filtered = sellerContracts
-        .filter((contract) => {
-          return contract.asset === filter.asset;
-        })
-        .filter((contract) => {
-          return contract.status === filter.status;
-        });
-      setFilteredContracts(filtered);
-      setLoading(false);
-      console.log(filtered, filter);
-    }
-  };
-
-  const handleResize = () => {
-    setWindowWidth(window.innerWidth);
+    const filtered = contractDetails
+      .filter((contract) => {
+        if (filter.isBuyer === undefined) {
+          return true;
+        }
+        return filter.isBuyer === contract.isBuyer;
+      })
+      .filter((contract) => {
+        if (filter.asset === undefined) {
+          return true;
+        }
+        return filter.asset === contract.asset;
+      })
+      .filter((contract) => {
+        if (filter.status === undefined) {
+          return true;
+        }
+        return filter.status === contract.status;
+      });
+    setFilteredContracts(filtered);
+    setLoading(false);
   };
 
   const handlePosition = (e: RadioChangeEvent) => {
@@ -150,23 +140,14 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   }, []);
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
     getFilteredCDS();
-  }, []);
+  }, [filter]);
 
   return (
     <Row justify="center" align="middle" gutter={{ md: 24 }}>
       <Col md={24}>
         {!wallet.isLinked ? (
           <NotAuthorized />
-        ) : loading ? (
-          <div>loading</div>
         ) : (
           <>
             <Avatar
@@ -182,11 +163,13 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
 
             <Space direction="vertical" style={{ width: '100%' }}>
               <Radio.Group value={filter.isBuyer} onChange={handlePosition}>
+                <Radio.Button>All</Radio.Button>
                 <Radio.Button value={true}>Buyer</Radio.Button>
                 <Radio.Button value={false}>Seller</Radio.Button>
               </Radio.Group>
 
               <Radio.Group value={filter.asset} onChange={handleAsset}>
+                <Radio.Button>All</Radio.Button>
                 <Radio.Button value="BTC">BTC</Radio.Button>
                 <Radio.Button value="ETH">ETH</Radio.Button>
                 <Radio.Button value="LINK">LINK</Radio.Button>
@@ -197,6 +180,7 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
                 value={filter.status}
                 onChange={handleStatus}
               >
+                <Radio.Button>All</Radio.Button>
                 <Radio.Button value="inactive">Inactive</Radio.Button>
                 <Radio.Button value="pending">Pending</Radio.Button>
                 <Radio.Button value="active">Acitve</Radio.Button>
@@ -205,10 +189,20 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
               </Radio.Group>
             </Space>
 
-            <div>{filter.asset}</div>
-            <div>{filter.status}</div>
-
-            <Swiper contracts={buyerContracts} windowWidth={windowWidth} />
+            <br />
+            <br />
+            <br />
+            {loading ? (
+              <Loading />
+            ) : (
+              <Space>
+                {filteredContracts.length > 0 ? (
+                  <CardList contracts={filteredContracts} />
+                ) : (
+                  <NoResult />
+                )}
+              </Space>
+            )}
           </>
         )}
       </Col>
@@ -216,14 +210,17 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
   );
 };
 
+const NoResult: React.FC = () => {
+  return <div>No result</div>;
+};
+
+const Loading: React.FC = () => {
+  return <div>Loading</div>;
+};
+
 const Profile = styled.p`
   font-size: ${styles.fs_8};
   padding: 20px;
-`;
-
-const Position = styled.p`
-  font-size: ${styles.fs_6};
-  padding: 10px;
 `;
 
 export default MyPage;
