@@ -15,6 +15,7 @@ export const styles = {
   cyan: 'hsl(178, 100%, 50%)',
   soft_blue: 'hsl(215, 51%, 70%)',
   white: 'hsl(0, 0%, 100%)',
+  lynch: 'hsl(211, 12%, 48%)',
   very_light_blue_main: '#f0f2f5',
   very_dark_blue_main: 'hsl(217, 54%, 11%)',
   very_dark_blue_sub: 'hsl(216, 50%, 16%)',

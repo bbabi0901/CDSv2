@@ -12,6 +12,7 @@ import Market from '../pages/Market/Market';
 import Create from '../pages/Create/Create';
 import Accept from '../pages/Accept/Accept';
 import MyPage from '../pages/MyPage/MyPage';
+import Mint from '../pages/Mint/Mint';
 import NotFound from '../pages/NotFound';
 
 // abi
@@ -36,6 +37,7 @@ const Router: React.FC = () => {
       <Route path={'/'} element={<Home />} />
       <Route path={'/search/:address'} element={<Search />} />
       <Route path={'/market'} element={<Market />} />
+      <Route path={'/mint'} element={<Mint />} />
       <Route path={'/create'} element={<Create />} />
       <Route path={'/accept'} element={<Accept />} />
       <Route

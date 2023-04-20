@@ -59,7 +59,6 @@ const MyPage: React.FC<MyPageProps> = ({ web3, cdsLounge }: MyPageProps) => {
           .call({ from: wallet.address });
         setOwnedCDS(res);
 
-        const contracts: ICardProps[] = [];
         for (let i = 0; i < res.length; i++) {
           const cds = new web3.eth.Contract(cdsAbi as AbiItem[], res[i]);
           const buyer = await cds.methods

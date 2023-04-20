@@ -40,7 +40,7 @@ const items: MenuItem[] = [
     getItem('Create', 'create'),
     getItem('Accept', 'accept'),
   ]),
-
+  getItem('Mint', 'mint'),
   getItem('MyPage', 'mypage'),
   getItem('', 'wallet', <WalletOutlined />),
 ];
@@ -48,7 +48,9 @@ const items: MenuItem[] = [
 const Nav: React.FC = () => {
   // search
   const [search, setSearch] = useState('');
-  const handleSearch: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+  const handleSearch: React.ChangeEventHandler<HTMLInputElement> = (
+    e,
+  ): void => {
     setSearch(e.target.value);
   };
 
@@ -59,7 +61,7 @@ const Nav: React.FC = () => {
   //   setSearch('');
   // };
 
-  const searchHandler = (value: string) => {
+  const searchHandler = (value: string): void => {
     navigate(`/search/${value}`);
     setSearch('');
   };
@@ -68,7 +70,7 @@ const Nav: React.FC = () => {
   const [collapsed, setCollapsed] = useRecoilState(collapsedState);
 
   // menu
-  const onMenuClick: MenuProps['onClick'] = (e) => {
+  const onMenuClick: MenuProps['onClick'] = (e): void => {
     if (e.key === 'wallet') {
       setCollapsed(!collapsed);
       return;
