@@ -2,9 +2,8 @@
 import React, { useEffect, useState, MouseEvent } from 'react';
 
 // antd
-import { Typography, Button, message, Upload } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
-import type { UploadProps } from 'antd';
+import { Typography, Button, Row, Col } from 'antd';
+import { FileImageOutlined } from '@ant-design/icons';
 
 // ipfs
 import { create as ipfsHttpClient } from 'ipfs-http-client';
@@ -18,14 +17,41 @@ import { styles } from '../../assets/styles/styles';
 import { ipfsProps } from '../../pages/Mint/Mint';
 
 const { Title, Paragraph } = Typography;
-const { Dragger } = Upload;
+
+const API_KEY = process.env.REACT_APP_API_KEY;
+const SECRET_KEY = process.env.REACT_APP_SECRET_KEY;
 
 const ImageUploader = (props: ipfsProps) => {
+  const authorization =
+    'Basic ' + Buffer.from(API_KEY + ':' + SECRET_KEY).toString('base64');
+  const ipfs = ipfsHttpClient({
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+      authorization,
+    },
+  });
+
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
   const [ipfsHash, setIpfsHash] = useState<string>('');
 
-  const clickUploadHandler = (e: MouseEvent): void => {
-    e.preventDefault();
+  const [imageSrc, setImageSrc] = useState('');
+  const getBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        setImageSrc(reader.result as string);
+        resolve(reader.result as string);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+
+  const uploadHandler = async (event: MouseEvent) => {
+    event.preventDefault();
+    console.log('Handling', imageSrc);
+
     const sampleStr = 'sample string of ipfs';
     setIpfsHash(sampleStr);
     props.addIpfsData(sampleStr);
@@ -35,23 +61,44 @@ const ImageUploader = (props: ipfsProps) => {
   return (
     <>
       <Title level={4}>Image *</Title>
-      <Description>
-        File types supported: JPG, PNG, GIF, SVG, MP4, WEBM, MP3, WAV, OGG, GLB,
-        GLTF. Max size: 100 MB
-      </Description>
-      <Dragger {...props}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">
-          Click or drag file to this area to upload
-        </p>
-        <p className="ant-upload-hint">
-          Support for a single or bulk upload. Strictly prohibited from
-          uploading company data or other banned files.
-        </p>
-      </Dragger>
+      <Description>File types supported: JPG, JPEG, PNG.</Description>
       <br />
+
+      <Row justify="center">
+        {!imageSrc ? (
+          <PreviewDefault
+            className="preview-default"
+            align="middle"
+            justify="center"
+          >
+            <FileImageOutlined style={{ fontSize: '1000%' }} />
+          </PreviewDefault>
+        ) : (
+          <Row className="preview" justify="center" align="middle">
+            {imageSrc && (
+              <img
+                style={{ height: '400px', width: '600px' }}
+                src={imageSrc}
+                alt="img-preview"
+              />
+            )}
+          </Row>
+        )}
+      </Row>
+      <br />
+
+      <input
+        type="file"
+        accept=".jpg,.jpeg,.png"
+        onChange={(e) => {
+          if (e.target.files) {
+            getBase64(e.target.files[0]);
+          }
+        }}
+      />
+      <br />
+      <br />
+
       {isUploaded ? (
         <div>
           <Button disabled type="text">
@@ -59,33 +106,24 @@ const ImageUploader = (props: ipfsProps) => {
           </Button>
         </div>
       ) : (
-        <Button onClick={clickUploadHandler}>Upload on IPFS</Button>
+        <Button onClick={uploadHandler}>Upload on IPFS</Button>
       )}
     </>
   );
 };
 
-const props: UploadProps = {
-  name: 'file',
-  multiple: true,
-  action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== 'uploading') {
-      console.log(info.file, info.fileList);
-    }
-    if (status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log('Dropped files', e.dataTransfer.files);
-  },
-};
+const PreviewDefault: typeof Row = styled(Row)`
+  border: 2px dashed;
+  height: 400px;
+  width: 600px;
+  background: ${styles.white};
+  border-radius: ${styles.radius_15};
+  &:hover {
+    background-color: ${styles.gray};
+  }
+`;
 
-const Description = styled(Paragraph)`
+const Description: typeof Paragraph = styled(Paragraph)`
   color: ${styles.lynch};
   font-size: ${styles.fs_3};
 `;

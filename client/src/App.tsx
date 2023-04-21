@@ -20,7 +20,8 @@ const App: React.FC = () => {
           <Layout
             style={{
               height: '100%',
-              background: `linear-gradient(${styles.main_theme}, ${styles.white} )`,
+              // background: `linear-gradient(${styles.main_theme}, ${styles.white} )`,
+              background: `${styles.white} )`,
               color: `${styles.very_dark_blue_line}`,
               gap: `${styles.space_8}`,
             }}

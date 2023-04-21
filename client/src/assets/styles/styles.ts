@@ -16,6 +16,7 @@ export const styles = {
   soft_blue: 'hsl(215, 51%, 70%)',
   white: 'hsl(0, 0%, 100%)',
   lynch: 'hsl(211, 12%, 48%)',
+  gray: 'hsl(204, 8%, 76%)',
   very_light_blue_main: '#f0f2f5',
   very_dark_blue_main: 'hsl(217, 54%, 11%)',
   very_dark_blue_sub: 'hsl(216, 50%, 16%)',
@@ -95,4 +96,7 @@ export const styles = {
   card_BTC: require('../../assets/img/BTC_Card_bg.jpeg'),
   card_ETH: require('../../assets/img/ETH_Card_bg.jpg'),
   card_LINK: require('../../assets/img/LINK_Card_bg.png'),
+
+  /* Font */
+  // f_
 };

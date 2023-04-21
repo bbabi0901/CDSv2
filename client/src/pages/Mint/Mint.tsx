@@ -1,6 +1,6 @@
 // modules
 import React, { useEffect, useState, MouseEvent } from 'react';
-import { Col, Row, Typography, Input, Button } from 'antd';
+import { Col, Row, Typography, Input, Divider, Button } from 'antd';
 
 // style
 import styled from 'styled-components';
@@ -27,9 +27,7 @@ const Mint: React.FC = () => {
     setMetaData({ ...metaData, image: hash });
   };
 
-  useEffect(() => {
-    console.log(metaData);
-  }, [metaData.image]);
+  useEffect(() => {}, []);
 
   return (
     <Row justify="center" align="middle" gutter={{ md: 24 }}>
@@ -43,14 +41,14 @@ const Mint: React.FC = () => {
           This is the collection where your item will appear.
         </Description>
         <Input placeholder="Item name" />
-        <br />
+        <Divider />
         <br />
         <ImageUploader addIpfsData={addIpfsDataHandler} />
-        <br />
+        <Divider />
         <br />
         <Title level={4}>Name *</Title>
         <Input placeholder="Item name" />
-        <br />
+        <Divider />
         <br />
         <Title level={4}>Description *</Title>
         <TextArea
@@ -59,12 +57,39 @@ const Mint: React.FC = () => {
           rows={6}
           placeholder="Provide a detail description to your item"
         />
+        <br />
+        <br />
+        <Row justify="center">
+          <PreviewButton onClick={(e) => console.log(e.target)}>
+            Preview
+          </PreviewButton>
+          <MintButton onClick={(e) => console.log(e.target)}>Mint</MintButton>
+        </Row>
       </Col>
     </Row>
   );
 };
 
-const Description = styled(Paragraph)`
+const PreviewButton: typeof Button = styled(Button)`
+  margin-top: 24px;
+  margin-left: 30px;
+  width: 150px;
+  height: 50px;
+  background-color: ${styles.white};
+  font-size: ${styles.fs_6};
+`;
+
+const MintButton: typeof Button = styled(Button)`
+  margin-top: 24px;
+  margin-left: 30px;
+  width: 150px;
+  height: 50px;
+  background-color: ${styles.main_theme_lighter};
+  color: ${styles.white};
+  font-size: ${styles.fs_6};
+`;
+
+const Description: typeof Paragraph = styled(Paragraph)`
   color: ${styles.lynch};
   font-size: ${styles.fs_3};
 `;
