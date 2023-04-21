@@ -66,13 +66,15 @@ const ImageUploader = (props: ipfsProps) => {
 
       <Row justify="center">
         {!imageSrc ? (
-          <PreviewDefault
-            className="preview-default"
-            align="middle"
-            justify="center"
-          >
-            <FileImageOutlined style={{ fontSize: '1000%' }} />
-          </PreviewDefault>
+          <label htmlFor="ex_file">
+            <PreviewDefault
+              className="preview-default"
+              align="middle"
+              justify="center"
+            >
+              <FileImageOutlined style={{ fontSize: '1000%' }} />
+            </PreviewDefault>
+          </label>
         ) : (
           <Row className="preview" justify="center" align="middle">
             {imageSrc && (
@@ -85,11 +87,11 @@ const ImageUploader = (props: ipfsProps) => {
           </Row>
         )}
       </Row>
-      <br />
-
       <input
         type="file"
         accept=".jpg,.jpeg,.png"
+        id="ex_file"
+        style={{ display: 'none' }}
         onChange={(e) => {
           if (e.target.files) {
             getBase64(e.target.files[0]);
@@ -100,11 +102,13 @@ const ImageUploader = (props: ipfsProps) => {
       <br />
 
       {isUploaded ? (
-        <div>
-          <Button disabled type="text">
-            {ipfsHash}
-          </Button>
-        </div>
+        <Button
+          disabled
+          type="text"
+          style={{ color: styles.main_theme_darker }}
+        >
+          {ipfsHash}
+        </Button>
       ) : (
         <Button onClick={uploadHandler}>Upload on IPFS</Button>
       )}
@@ -120,6 +124,7 @@ const PreviewDefault: typeof Row = styled(Row)`
   border-radius: ${styles.radius_15};
   &:hover {
     background-color: ${styles.gray};
+    cursor: pointer;
   }
 `;
 
