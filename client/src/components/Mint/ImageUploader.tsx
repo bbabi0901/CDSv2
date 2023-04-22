@@ -58,7 +58,7 @@ const ImageUploader = (props: ipfsProps) => {
 
     const result = await ipfs.add(imageFile);
     setIpfsHash(result.path);
-    props.addIpfsData(result.path);
+    props.addIpfsData(result.path, imageSrc);
     setIsUploaded(true);
   };
 
@@ -163,6 +163,7 @@ const PreviewDefault: typeof Row = styled(Row)`
 const Img = styled.img`
   height: 400px;
   width: 600px;
+  border-radius: ${styles.radius_15};
   &:hover {
     filter: brightness(0.7);
   }
