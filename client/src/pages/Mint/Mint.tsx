@@ -30,7 +30,7 @@ const Mint: React.FC = () => {
   useEffect(() => {}, []);
 
   return (
-    <Row justify="center" align="middle" gutter={{ md: 24 }}>
+    <Row justify="center" align="middle" gutter={{ md: 24, xs: 12, sm: 16 }}>
       <Col md={12}>
         <Title>Create New Page</Title>
         <br />
