@@ -7,7 +7,6 @@ import { FileImageOutlined, UserOutlined } from '@ant-design/icons';
 
 // ipfs
 import { create as ipfsHttpClient } from 'ipfs-http-client';
-// import { IpfsImage } from "react-ipfs-image";
 
 // style
 import styled from 'styled-components';
@@ -23,6 +22,7 @@ const SECRET_KEY = process.env.REACT_APP_SECRET_KEY;
 
 const ImageUploader = (props: ipfsProps) => {
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [ipfsHash, setIpfsHash] = useState<string>('');
   const [imageSrc, setImageSrc] = useState<string>('');
   const [imageFile, setImageFile] = useState<File>();
@@ -129,11 +129,14 @@ const ImageUploader = (props: ipfsProps) => {
       />
       <br />
       <br />
-
       {imageFile ? (
         isUploaded ? (
-          <Button disabled style={{ color: styles.main_theme_darker }}>
-            Upload succeed
+          <Button
+            onClick={() => {
+              window.open(`https://ipfs.io/ipfs/${ipfsHash}`);
+            }}
+          >
+            Upload succeed! Click to see.
           </Button>
         ) : (
           <Button onClick={uploadHandler}>Upload on IPFS</Button>

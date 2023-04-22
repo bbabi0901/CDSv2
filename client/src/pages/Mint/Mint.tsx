@@ -1,13 +1,13 @@
 // modules
 import React, { useEffect, useState, MouseEvent } from 'react';
-import { Col, Row, Typography, Input, Divider, Button } from 'antd';
+import { Col, Row, Typography, Input, Divider, Button, Space } from 'antd';
 
 // style
 import styled from 'styled-components';
 import { styles } from '../../assets/styles/styles';
 
 // component
-import ImageUploader from '../../components/ImageUploader/ImageUploader';
+import ImageUploader from '../../components/Mint/ImageUploader';
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
